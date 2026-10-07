@@ -13,10 +13,11 @@ async function main() {
         const pool = getPool();
         await pool.query(sql);
         console.log(`Migrated: ${file}`);
-    } catch (error) {
-        console.log({ error });
+    } catch (error: any) {
+        throw new Error(error);
+    } finally {
+        await closePool();
     }
-    await closePool();
 }
 
 main().catch((err) => {

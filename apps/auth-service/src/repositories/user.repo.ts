@@ -1,5 +1,5 @@
-import { getPool } from "shared";
-import { User, UserRole } from "../types/auth.types";
+import { getPool, UserRole } from "shared";
+import { User } from "../types/auth.types";
 
 export async function findByEmail(email: string): Promise<User | null> {
     const result = await getPool().query<User>(

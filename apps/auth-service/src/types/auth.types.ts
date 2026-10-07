@@ -1,4 +1,4 @@
-export type UserRole = "USER" | "ADMIN";
+import { UserRole } from "shared";
 
 export type User = {
     id: string;
@@ -7,9 +7,4 @@ export type User = {
     password_hash: string;
     role: UserRole;
     created_at: Date;
-};
-
-export type JwtPayload = {
-    userId: string;
-    role: UserRole;
 };
