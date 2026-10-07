@@ -4,6 +4,7 @@ import {
     createAccessToken,
     createRefreshToken,
     getSecret,
+    sendEmail,
 } from "shared";
 import * as userRepo from "../repositories/user.repo";
 import { LoginInput, RegisterInput } from "../schemas/auth.schemas";
@@ -39,19 +40,18 @@ export async function register(input: RegisterInput) {
     );
     const emailVerificationUrl = `${getAppUrl()}/auth/verify-email/${emailVerificationToken}`;
 
-    // TODO: send email verification email
-    // await sendEmail(
-    //     user.email,
-    //     "Verify your email",
-    //     `
-    //         <p>Click the link below to verify your email address:</p>
-    //         <p><a href="${emailVerificationUrl}">${emailVerificationUrl}</a></p>
-    //         <p>If you didn't request this email, please ignore this message.</p>
-    //         <p>Thanks,<br>The Team</p>
-    //         <p><small>Note: replies to this email address are not monitored.</small></p>
+    await sendEmail(
+        user.email,
+        "Verify your email",
+        `
+            <p>Click the link below to verify your email address:</p>
+            <p><a href="${emailVerificationUrl}">${emailVerificationUrl}</a></p>
+            <p>If you didn't request this email, please ignore this message.</p>
+            <p>Thanks,<br>The Team</p>
+            <p><small>Note: replies to this email address are not monitored.</small></p>
 
-    //     `,
-    // );
+        `,
+    );
     return {
         accessToken,
         user: convertToPublicUser(user),
