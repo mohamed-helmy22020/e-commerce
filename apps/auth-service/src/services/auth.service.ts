@@ -1,0 +1,51 @@
+import bcrypt from "bcryptjs";
+import { AppError, signToken } from "shared";
+import { createUser, findByEmail, findById } from "../repositories/user.repo";
+import { LoginInput, RegisterInput } from "../schemas/auth.schemas";
+import { convertToPublicUser } from "../utils/auth.utils";
+
+export async function register(input: RegisterInput) {
+    const existingUser = await findByEmail(input.email);
+    if (existingUser) {
+        throw new AppError("User already exists", 409);
+    }
+    const passwordHash = await bcrypt.hash(input.password, 10);
+    const user = await createUser({
+        name: input.name,
+        email: input.email,
+        passwordHash,
+        role: "USER",
+    });
+
+    return {
+        token: signToken({ userId: user.id, role: user.role }),
+        user: convertToPublicUser(user),
+    };
+}
+
+export async function login(input: LoginInput) {
+    const user = await findByEmail(input.email);
+    if (!user) {
+        throw new AppError("Invalid email or password", 401);
+    }
+    const passwordMatch = await bcrypt.compare(
+        input.password,
+        user.password_hash,
+    );
+    if (!passwordMatch) {
+        throw new AppError("Invalid email or password", 401);
+    }
+    const token = signToken({ userId: user.id, role: user.role });
+    return {
+        token,
+        user: convertToPublicUser(user),
+    };
+}
+
+export async function getMe(userId: string) {
+    const user = await findById(userId);
+    if (!user) {
+        throw new AppError("User not found", 404);
+    }
+    return convertToPublicUser(user);
+}
