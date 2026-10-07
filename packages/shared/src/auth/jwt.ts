@@ -1,44 +1,46 @@
 import jwt from "jsonwebtoken";
 import { JwtPayload } from "./types";
 
-function getSecret(): string {
-    const secret = process.env.JWT_SECRET;
+export function getSecret(type: "access" | "refresh" = "access") {
+    let secret;
+    if (type === "access") {
+        secret = process.env.JWT_ACCESS_SECRET;
+    } else {
+        secret = process.env.JWT_REFRESH_SECRET;
+    }
     if (!secret || secret.length < 32) {
         throw new Error("JWT_SECRET is missing or too short");
     }
     return secret;
 }
 
-export function signToken(payload: JwtPayload): string {
+export function createAccessToken(payload: JwtPayload) {
     const expiresIn = (process.env.JWT_EXPIRES_IN ||
-        "1h") as jwt.SignOptions["expiresIn"];
-    return jwt.sign(payload, getSecret(), {
+        "15m") as jwt.SignOptions["expiresIn"];
+    return jwt.sign(payload, getSecret("access"), {
         expiresIn,
         algorithm: "HS256",
     });
 }
 
-export function verifyToken(token: string) {
-    const decodeToken = jwt.verify(token, getSecret(), {
-        algorithms: ["HS256"],
-    });
-    if (
-        typeof decodeToken !== "object" ||
-        decodeToken === null ||
-        typeof decodeToken.userId !== "string" ||
-        !decodeToken.userId ||
-        !decodeToken.role
-    ) {
-        throw new Error("Invalid token");
-    }
+export function createRefreshToken(userId: string) {
+    return jwt.sign(
+        {
+            userId,
+        },
+        getSecret("refresh"),
+        {
+            expiresIn: "7d",
+        },
+    );
+}
 
-    // Strictly validate role against allowed values
-    if (decodeToken.role !== "USER" && decodeToken.role !== "ADMIN") {
-        throw new Error("Invalid role");
-    }
+export function verifyAccessToken(token: string) {
+    return jwt.verify(token, getSecret("access")) as JwtPayload;
+}
 
-    return {
-        userId: decodeToken.userId,
-        role: decodeToken.role,
+export function verifyRefreshToken(token: string) {
+    return jwt.verify(token, getSecret("refresh")) as {
+        userId: string;
     };
 }

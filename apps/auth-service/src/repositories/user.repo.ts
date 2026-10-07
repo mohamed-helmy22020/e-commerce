@@ -29,3 +29,10 @@ export async function createUser(input: {
     );
     return result.rows[0];
 }
+
+export async function verifyEmail() {
+    const result = await getPool().query(
+        `UPDATE users SET is_email_verified = TRUE`,
+    );
+    return (result.rowCount ?? 0) > 0;
+}
