@@ -7,5 +7,6 @@ const router = Router();
 router.post("/register", validateBody(registerSchema), authController.register);
 router.post("/login", validateBody(loginSchema), authController.login);
 router.get("/me", authController.getMe);
+router.get("/verify-email/:token", authController.verifyEmail);
 
 export default router;

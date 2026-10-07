@@ -1,7 +1,14 @@
 export { requireGatewaySecret } from "./auth/gatewayAuth";
-export { signToken, verifyToken } from "./auth/jwt";
+export {
+    createAccessToken,
+    createRefreshToken,
+    getSecret,
+    verifyAccessToken,
+    verifyRefreshToken,
+} from "./auth/jwt";
 export type { JwtPayload, UserRole } from "./auth/types";
 export { closePool, getPool } from "./db/pool";
+export { sendEmail } from "./email/email";
 export { AppError } from "./errors/AppError";
 export { errorHandler } from "./errors/errorHandler";
 export { createKafkaClient } from "./kafka/client";

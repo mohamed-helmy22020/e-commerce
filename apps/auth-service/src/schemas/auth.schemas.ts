@@ -15,7 +15,13 @@ export const loginSchema = z.object({
     password: z
         .string({ message: "Password is required" })
         .min(8, { message: "Password is too short" }),
+    twoFactorCode: z.string().min(6).optional(),
+});
+
+export const verifyEmailSchema = z.object({
+    token: z.string().min(1),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;

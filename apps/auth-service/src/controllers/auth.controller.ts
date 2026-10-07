@@ -1,22 +1,47 @@
 import type { Request, Response } from "express";
-import { successResponse } from "shared";
-import { z } from "zod";
-import { loginSchema, registerSchema } from "../schemas/auth.schemas";
+import { failResponse, successResponse } from "shared";
+import z from "zod";
+import {
+    LoginInput,
+    RegisterInput,
+    VerifyEmailInput,
+    verifyEmailSchema,
+} from "../schemas/auth.schemas";
 import * as authService from "../services/auth.service";
 
 export async function register(
-    req: Request<{}, {}, z.infer<typeof registerSchema>>,
+    req: Request<{}, {}, RegisterInput>,
     res: Response,
 ) {
     const result = await authService.register(req.body);
     return successResponse(res, result, 201);
 }
 
-export async function login(
-    req: Request<{}, {}, z.infer<typeof loginSchema>>,
+export async function verifyEmail(
+    req: Request<VerifyEmailInput>,
     res: Response,
 ) {
-    const result = await authService.login(req.body);
+    const result = verifyEmailSchema.safeParse(req.params);
+
+    if (!result.success) {
+        const message = z.treeifyError(result.error);
+        return failResponse(res, message, 400);
+    }
+
+    await authService.verifyEmail(result.data.token);
+
+    return successResponse(res, { message: "Email verified" }, 200);
+}
+
+export async function login(req: Request<{}, {}, LoginInput>, res: Response) {
+    const { refreshToken, ...result } = await authService.login(req.body);
+    const isProd = process.env.NODE_ENV === "production";
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7 * 1000,
+    });
     return successResponse(res, result, 200);
 }
 

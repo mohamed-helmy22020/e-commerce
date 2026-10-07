@@ -15,6 +15,8 @@ export function errorHandler(
             message: err.message,
         });
     }
+
+    // json body errors
     if (
         typeof err?.message === "string" &&
         (err.message.includes("not valid JSON") ||
@@ -25,10 +27,32 @@ export function errorHandler(
             message: "Request body is not a valid JSON",
         });
     }
+
+    // postgres errors
     if (err?.code === "23505") {
         return res
             .status(409)
             .json({ success: false, message: "User already exists" });
+    }
+
+    // jwt errors
+    if (err?.name === "TokenExpiredError") {
+        return res.status(401).json({
+            success: false,
+            message: "Token expired",
+        });
+    }
+    if (err?.name === "JsonWebTokenError") {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid token",
+        });
+    }
+    if (err?.name === "NotBeforeError") {
+        return res.status(401).json({
+            success: false,
+            message: "Token not active yet",
+        });
     }
 
     return res.status(500).json({
