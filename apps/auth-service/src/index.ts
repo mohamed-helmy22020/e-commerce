@@ -1,38 +1,22 @@
 import { config } from "dotenv";
-import express from "express";
+import http from "http";
 import { resolve } from "node:path";
-import {
-    AppError,
-    errorHandler,
-    httpLogger,
-    logger,
-    requireGatewaySecret,
-    successResponse,
-} from "shared";
-import authRoutes from "./routes/auth.routes";
+import { logger } from "shared";
+import app from "./app";
 
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), "../../.env") });
 
 const PORT = process.env.AUTH_PORT || 3001;
 
-const app = express();
+async function startServer() {
+    const server = http.createServer(app);
+    server.listen(PORT, () => {
+        logger.info(`Auth service listening on port ${PORT}`);
+    });
+}
 
-app.use(httpLogger);
-
-app.use(express.json());
-app.get("/health", (_req, res) => {
-    return successResponse(res, { service: "auth-service" });
-});
-
-app.use("/auth", requireGatewaySecret, authRoutes);
-
-app.use((_req, res, next) => {
-    next(new AppError("[AUTH SERVICE] Route not found", 404));
-});
-
-app.use(errorHandler);
-
-app.listen(PORT, () => {
-    logger.info(`Auth service listening on port ${PORT}`);
+startServer().catch((err) => {
+    console.error(err);
+    process.exit(1);
 });

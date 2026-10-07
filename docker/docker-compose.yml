@@ -1,7 +1,7 @@
 services:
   redis:
     image: redis:latest
-    container_name: my-redis
+    container_name: e-commerce-redis
     restart: unless-stopped
     ports:
       - "127.0.0.1:6379:6379"
@@ -20,7 +20,7 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: my-postgres
+    container_name: e-commerce-postgres
     restart: unless-stopped
     ports:
       - "127.0.0.1:5432:5432"
@@ -39,7 +39,7 @@ services:
       - app-network
   kafka:
     image: apache/kafka:4.3.1
-    container_name: node-microservices-kafka
+    container_name: e-commerce-kafka
     ports:
       - "127.0.0.1:9092:9092"
     networks:

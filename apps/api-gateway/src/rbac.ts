@@ -23,46 +23,6 @@ const rbacRules: RbacRule[] = [
         path: "/auth/me",
         roles: ["USER", "ADMIN"],
     },
-    {
-        method: "POST",
-        path: "/tasks",
-        roles: ["USER", "ADMIN"],
-    },
-    {
-        method: "GET",
-        path: "/tasks",
-        roles: ["USER", "ADMIN"],
-    },
-    {
-        method: "GET",
-        path: "/tasks/:id",
-        roles: ["USER", "ADMIN"],
-    },
-    {
-        method: "DELETE",
-        path: "/tasks/:id",
-        roles: ["ADMIN"],
-    },
-    {
-        method: "PATCH",
-        path: "/tasks/:id",
-        roles: ["USER", "ADMIN"],
-    },
-    {
-        method: "POST",
-        path: "/tasks/:taskId/attachments",
-        roles: ["USER", "ADMIN"],
-    },
-    {
-        method: "GET",
-        path: "/tasks/:taskId/attachments",
-        roles: ["USER", "ADMIN"],
-    },
-    {
-        method: "GET",
-        path: "/workflows",
-        roles: ["ADMIN"],
-    },
 ];
 
 function matchPath(pattern: string, actualPath: string): boolean {
