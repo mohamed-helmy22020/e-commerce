@@ -72,7 +72,7 @@ export async function verifyEmail(token: string) {
         throw new AppError("Email already verified", 409);
     }
 
-    return await userRepo.verifyEmail();
+    return await userRepo.verifyEmail(user.id);
 }
 
 export async function login(input: LoginInput) {

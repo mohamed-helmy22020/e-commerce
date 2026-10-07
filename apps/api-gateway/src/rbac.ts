@@ -15,6 +15,10 @@ export const publicRoutes = [
         method: "POST",
         path: "/auth/login",
     },
+    {
+        method: "GET",
+        path: "/auth/verify-email/:token",
+    },
 ] as const;
 
 const rbacRules: RbacRule[] = [
