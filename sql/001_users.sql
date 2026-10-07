@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS users (
   two_factor_secret TEXT NOT NULL DEFAULT '',
   reset_password_token TEXT NOT NULL DEFAULT '',
   reset_password_expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), 
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

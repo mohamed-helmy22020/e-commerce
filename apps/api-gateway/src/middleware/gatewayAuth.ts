@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { AppError, JwtPayload, verifyToken } from "shared";
+import { AppError, JwtPayload, verifyAccessToken } from "shared";
 import { getAllowedRoles, isPublicRoute } from "../rbac";
 
 const IDENTITY_HEADERS = [
@@ -51,7 +51,7 @@ export function gatewayAuth(req: Request, _res: Response, next: NextFunction) {
             throw new AppError("Missing authorization header", 401);
         }
         const token = authHeader.split(" ")[1];
-        const payload = verifyToken(token);
+        const payload = verifyAccessToken(token);
 
         const allowedRoles = getAllowedRoles(req.method, path);
 

@@ -36,11 +36,19 @@ export function createRefreshToken(userId: string) {
 }
 
 export function verifyAccessToken(token: string) {
-    return jwt.verify(token, getSecret("access")) as JwtPayload;
+    const payload = jwt.verify(token, getSecret("access"), {
+        algorithms: ["HS256"],
+    }) as JwtPayload;
+    if (!payload.userId || !payload.role) {
+        throw new Error("Invalid JWT payload");
+    }
+    return payload;
 }
 
 export function verifyRefreshToken(token: string) {
-    return jwt.verify(token, getSecret("refresh")) as {
+    return jwt.verify(token, getSecret("refresh"), {
+        algorithms: ["HS256"],
+    }) as {
         userId: string;
     };
 }
