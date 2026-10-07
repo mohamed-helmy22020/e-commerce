@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { logger } from "../logger/logger";
 import { AppError } from "./AppError";
 export function errorHandler(
     err: any,
@@ -8,7 +7,7 @@ export function errorHandler(
     _next: NextFunction,
 ) {
     console.log("###########");
-    logger.error({ err }, "Request failed");
+    console.log({ ...err, message: err?.message });
     console.log("###########");
     if (err instanceof AppError) {
         return res.status(err.statusCode).json({
@@ -18,11 +17,12 @@ export function errorHandler(
     }
     if (
         typeof err?.message === "string" &&
-        err.message.includes("not valid JSON")
+        (err.message.includes("not valid JSON") ||
+            err?.type === "entity.parse.failed")
     ) {
         return res.status(400).json({
             success: false,
-            message: "Request body is not valid JSON",
+            message: "Request body is not a valid JSON",
         });
     }
     if (err?.code === "23505") {

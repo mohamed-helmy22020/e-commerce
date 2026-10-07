@@ -8,6 +8,7 @@
         "packages/*"
     ],
     "scripts": {
+        "dev:all": "tsx scripts/start_all_services.ts",
         "dev:gateway": "npm run dev -w=api-gateway",
         "dev:auth": "npm run dev -w=auth-service",
         "dev:task": "npm run dev -w=task-service",
@@ -22,7 +23,7 @@
         "@types/cors": "^2.8.19",
         "@types/express": "^5.0.6",
         "@types/jsonwebtoken": "^9.0.10",
-        "@types/node": "^26.6.3",
+        "@types/node": "^26.6.4",
         "tsx": "^4.23.15",
         "typescript": "^7.0.2"
     },

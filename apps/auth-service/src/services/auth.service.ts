@@ -16,9 +16,9 @@ export async function register(input: RegisterInput) {
         passwordHash,
         role: "USER",
     });
-
+    const accessToken = signToken({ userId: user.id, role: user.role });
     return {
-        token: signToken({ userId: user.id, role: user.role }),
+        accessToken,
         user: convertToPublicUser(user),
     };
 }
@@ -35,9 +35,9 @@ export async function login(input: LoginInput) {
     if (!passwordMatch) {
         throw new AppError("Invalid email or password", 401);
     }
-    const token = signToken({ userId: user.id, role: user.role });
+    const accessToken = signToken({ userId: user.id, role: user.role });
     return {
-        token,
+        accessToken,
         user: convertToPublicUser(user),
     };
 }

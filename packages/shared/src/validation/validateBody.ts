@@ -1,16 +1,13 @@
 import type { NextFunction, Request, Response } from "express";
-import { ZodObject } from "zod";
-import { AppError } from "../errors/AppError";
+import z, { ZodObject } from "zod";
+import { failResponse } from "../response/response";
 export function validateBody(schema: ZodObject) {
-    return (req: Request, _res: Response, next: NextFunction) => {
+    return (req: Request, res: Response, next: NextFunction) => {
         const result = schema.safeParse(req.body);
 
         if (!result.success) {
-            const message = result.error.issues
-                .map((issue) => issue.message)
-                .join(", ");
-
-            return next(new AppError(message, 400));
+            const message = z.treeifyError(result.error);
+            return failResponse(res, message, 400);
         }
         req.body = result.data;
         next();

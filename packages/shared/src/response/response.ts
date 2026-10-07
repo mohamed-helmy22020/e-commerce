@@ -10,7 +10,11 @@ export function successResponse(
     });
 }
 
-export function failResponse(res: Response, message: string, statusCode = 400) {
+export function failResponse(
+    res: Response,
+    message: unknown,
+    statusCode = 400,
+) {
     return res.status(statusCode).json({
         success: false,
         message,
