@@ -1,6 +1,16 @@
 import type { NextFunction, Request, Response } from "express";
 import { timingSafeEqual } from "node:crypto";
 import { AppError } from "../errors/AppError";
+import { UserRole } from "./types";
+
+export function requireIdentity(req: Request) {
+    const userId = req.headers["x-user-id"] as string;
+    const role = req.headers["x-user-role"] as UserRole;
+    if (!userId || !role) {
+        throw new Error("Missing user identity");
+    }
+    return { userId, role };
+}
 
 export function requireGatewaySecret(
     req: Request,

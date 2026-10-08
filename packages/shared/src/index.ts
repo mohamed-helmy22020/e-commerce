@@ -1,4 +1,4 @@
-export { requireGatewaySecret } from "./auth/gatewayAuth";
+export { requireGatewaySecret, requireIdentity } from "./auth/gatewayAuth";
 export {
     createAccessToken,
     createRefreshToken,

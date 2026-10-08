@@ -44,6 +44,16 @@ const rbacRules: RbacRule[] = [
         path: "/auth/logout",
         roles: ["USER", "ADMIN"],
     },
+    {
+        method: "POST",
+        path: "/auth/2fa-setup",
+        roles: ["USER", "ADMIN"],
+    },
+    {
+        method: "POST",
+        path: "/auth/2fa-verify",
+        roles: ["USER", "ADMIN"],
+    },
 ];
 
 function matchPath(pattern: string, actualPath: string): boolean {
