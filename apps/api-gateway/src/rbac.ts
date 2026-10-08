@@ -19,12 +19,39 @@ export const publicRoutes = [
         method: "GET",
         path: "/auth/verify-email/:token",
     },
+    {
+        method: "POST",
+        path: "/auth/refresh-token",
+    },
+    {
+        method: "POST",
+        path: "/auth/forgot-password",
+    },
+    {
+        method: "POST",
+        path: "/auth/reset-password",
+    },
 ] as const;
 
 const rbacRules: RbacRule[] = [
     {
         method: "GET",
         path: "/auth/me",
+        roles: ["USER", "ADMIN"],
+    },
+    {
+        method: "POST",
+        path: "/auth/logout",
+        roles: ["USER", "ADMIN"],
+    },
+    {
+        method: "POST",
+        path: "/auth/2fa-setup",
+        roles: ["USER", "ADMIN"],
+    },
+    {
+        method: "POST",
+        path: "/auth/2fa-verify",
         roles: ["USER", "ADMIN"],
     },
 ];
