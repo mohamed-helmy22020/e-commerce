@@ -31,6 +31,14 @@ export const publicRoutes = [
         method: "POST",
         path: "/auth/reset-password",
     },
+    {
+        method: "GET",
+        path: "/auth/google",
+    },
+    {
+        method: "GET",
+        path: "/auth/google/callback",
+    },
 ] as const;
 
 const rbacRules: RbacRule[] = [

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { requireGatewaySecret, validateBody } from "shared";
 import * as authController from "../controllers/auth.controller";
+import * as singleSignOnController from "../controllers/singleSignOn.controller";
 import {
     forgotPasswordSchema,
     loginSchema,
@@ -25,6 +26,11 @@ router.post(
     "/reset-password",
     validateBody(resetPasswordSchema),
     authController.resetPasswordHandler,
+);
+router.get("/google", singleSignOnController.googleAuthStartHandler);
+router.get(
+    "/google/callback",
+    singleSignOnController.googleAuthCallbackHandler,
 );
 router.post("/2fa-setup", requireGatewaySecret, authController.twoFASetup);
 router.post(

@@ -50,6 +50,10 @@ app.use(
     }),
 );
 
+app.use("/", (_req, res) => {
+    res.send("E-commerce API");
+});
+
 app.use((_req, _res, next) => {
     next(new AppError("[API GATEWAY] Route not found", 404));
 });

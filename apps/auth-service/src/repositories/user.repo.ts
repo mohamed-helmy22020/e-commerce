@@ -32,10 +32,17 @@ export async function createUser(input: {
     email: string;
     passwordHash: string;
     role?: UserRole;
+    isEmailVerified?: boolean;
 }): Promise<User> {
     const result = await getPool().query<User>(
-        `INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING *`,
-        [input.name, input.email, input.passwordHash, input.role ?? "USER"],
+        `INSERT INTO users (name, email, password_hash, role, is_email_verified) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+        [
+            input.name,
+            input.email,
+            input.passwordHash,
+            input.role ?? "USER",
+            input.isEmailVerified ?? false,
+        ],
     );
     return result.rows[0];
 }
