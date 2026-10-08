@@ -5,6 +5,7 @@ import {
     createRefreshToken,
     getSecret,
     sendEmail,
+    verifyRefreshToken,
 } from "shared";
 import * as userRepo from "../repositories/user.repo";
 import { LoginInput, RegisterInput } from "../schemas/auth.schemas";
@@ -105,4 +106,26 @@ export async function getMe(userId: string) {
         throw new AppError("User not found", 404);
     }
     return convertToPublicUser(user);
+}
+
+export async function refreshToken(refreshToken: string) {
+    const payload = verifyRefreshToken(refreshToken);
+
+    const user = await userRepo.findById(payload.userId);
+    if (!user) {
+        throw new AppError("Invalid refresh token", 401);
+    }
+
+    const newAccessToken = createAccessToken({
+        userId: user.id,
+        role: user.role,
+    });
+
+    const newRefreshToken = createRefreshToken(user.id);
+
+    return {
+        newAccessToken,
+        newRefreshToken,
+        user,
+    };
 }

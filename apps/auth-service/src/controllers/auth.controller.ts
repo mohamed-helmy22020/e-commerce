@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { failResponse, successResponse } from "shared";
+import { AppError, failResponse, successResponse } from "shared";
 import z from "zod";
 import {
     LoginInput,
@@ -8,6 +8,7 @@ import {
     verifyEmailSchema,
 } from "../schemas/auth.schemas";
 import * as authService from "../services/auth.service";
+import { convertToPublicUser } from "../utils/auth.utils";
 
 export async function register(
     req: Request<{}, {}, RegisterInput>,
@@ -31,6 +32,30 @@ export async function verifyEmail(
     await authService.verifyEmail(result.data.token);
 
     return successResponse(res, { message: "Email verified" }, 200);
+}
+
+export async function refreshHandler(req: Request, res: Response) {
+    const refreshToken = req.cookies.refreshToken as string | undefined;
+    if (!refreshToken) {
+        throw new AppError("Missing refresh token", 401);
+    }
+
+    const { newAccessToken, newRefreshToken, user } =
+        await authService.refreshToken(refreshToken);
+
+    const isProd = process.env.NODE_ENV === "production";
+    res.cookie("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7 * 1000,
+    });
+
+    return res.status(200).json({
+        message: "Refresh token successful",
+        accessToken: newAccessToken,
+        user: convertToPublicUser(user),
+    });
 }
 
 export async function login(req: Request<{}, {}, LoginInput>, res: Response) {

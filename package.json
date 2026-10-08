@@ -29,8 +29,6 @@
         "typescript": "^7.0.2"
     },
     "dependencies": {
-        "cookie-parser": "^1.4.7",
-        "dotenv": "^18.0.4",
-        "nodemailer": "^10.0.16"
+        "dotenv": "^18.0.4"
     }
 }
