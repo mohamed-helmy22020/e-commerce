@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import {
     AppError,
@@ -11,7 +12,6 @@ import * as userRepo from "../repositories/user.repo";
 import { LoginInput, RegisterInput } from "../schemas/auth.schemas";
 import { convertToPublicUser } from "../utils/auth.utils";
 import { comparePassword, hashPassword } from "../utils/hash";
-
 function getAppUrl() {
     return process.env.APP_URL!;
 }
@@ -128,4 +128,61 @@ export async function refreshToken(refreshToken: string) {
         newRefreshToken,
         user,
     };
+}
+
+export async function forgotPassword(email: string) {
+    const user = await userRepo.findByEmail(email);
+    if (!user) {
+        return false;
+    }
+
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto
+        .createHash("sha256")
+        .update(rawToken)
+        .digest("hex");
+
+    await userRepo.updateUserById({
+        id: user.id,
+        userData: {
+            reset_password_token: tokenHash,
+            reset_password_expires_at: new Date(Date.now() + 15 * 60 * 1000),
+        },
+    });
+
+    const resetPasswordUrl = `${getAppUrl()}/auth/reset-password/${tokenHash}`;
+
+    await sendEmail(
+        user.email,
+        "Reset your password",
+        `
+            <p>Click the link below to reset your password:</p>
+            <p><a href="${resetPasswordUrl}">${resetPasswordUrl}</a></p>
+            <p>or use this token: <br /><strong style="font-size: 20px; font-family: monospace;">${rawToken}</strong></p>
+            <p>If you didn't request this email, please ignore this message.</p>
+            <p>Thanks,<br>The Team</p>
+            <p><small>Note: replies to this email address are not monitored.</small></p>
+
+        `,
+    );
+    return true;
+}
+
+export async function resetPassword(token: string, password: string) {
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await userRepo.findByResetPasswordToken(hashedToken);
+    if (!user) {
+        throw new AppError("Invalid token", 404);
+    }
+
+    const newPasswordHash = await hashPassword(password);
+    await userRepo.updateUserById({
+        id: user.id,
+        userData: {
+            reset_password_token: "",
+            reset_password_expires_at: new Date(),
+            password_hash: newPasswordHash,
+        },
+    });
 }

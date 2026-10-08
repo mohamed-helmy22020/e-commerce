@@ -23,6 +23,14 @@ export const publicRoutes = [
         method: "POST",
         path: "/auth/refresh-token",
     },
+    {
+        method: "POST",
+        path: "/auth/forgot-password",
+    },
+    {
+        method: "POST",
+        path: "/auth/reset-password",
+    },
 ] as const;
 
 const rbacRules: RbacRule[] = [

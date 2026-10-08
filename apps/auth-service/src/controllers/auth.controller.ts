@@ -2,8 +2,10 @@ import type { Request, Response } from "express";
 import { AppError, failResponse, successResponse } from "shared";
 import z from "zod";
 import {
+    ForgotPasswordInput,
     LoginInput,
     RegisterInput,
+    ResetPasswordInput,
     VerifyEmailInput,
     verifyEmailSchema,
 } from "../schemas/auth.schemas";
@@ -82,4 +84,31 @@ export async function getMe(req: Request, res: Response) {
     }
     const user = await authService.getMe(userId);
     return successResponse(res, { user }, 200);
+}
+
+export async function forgotPasswordHandler(
+    req: Request<{}, {}, ForgotPasswordInput>,
+    res: Response,
+) {
+    const email = req.body.email;
+    const normalizedEmail = email?.toLowerCase();
+
+    await authService.forgotPassword(normalizedEmail);
+
+    return res.status(200).json({
+        success: true,
+        message:
+            "if an account with this email exists, we will send you a reset link",
+    });
+}
+
+export async function resetPasswordHandler(
+    req: Request<{}, {}, ResetPasswordInput>,
+    res: Response,
+) {
+    const { token, password } = req.body;
+
+    await authService.resetPassword(token, password);
+
+    return res.status(200).json({ message: "Password reset successfully" });
 }

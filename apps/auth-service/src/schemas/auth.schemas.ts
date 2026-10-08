@@ -22,6 +22,19 @@ export const verifyEmailSchema = z.object({
     token: z.string().min(1),
 });
 
+export const forgotPasswordSchema = z.object({
+    email: z.email(),
+});
+
+export const resetPasswordSchema = z.object({
+    token: z.string().min(1),
+    password: z
+        .string({ message: "Password is required" })
+        .min(8, { message: "Password is too short" }),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
