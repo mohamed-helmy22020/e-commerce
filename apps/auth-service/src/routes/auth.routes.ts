@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { validateBody } from "shared";
+import { requireGatewaySecret, validateBody } from "shared";
 import * as authController from "../controllers/auth.controller";
 import {
     forgotPasswordSchema,
     loginSchema,
     registerSchema,
     resetPasswordSchema,
+    twoFAVerifySchema,
 } from "../schemas/auth.schemas";
 const router = Router();
 
@@ -24,6 +25,13 @@ router.post(
     "/reset-password",
     validateBody(resetPasswordSchema),
     authController.resetPasswordHandler,
+);
+router.post("/2fa-setup", requireGatewaySecret, authController.twoFASetup);
+router.post(
+    "/2fa-verify",
+    requireGatewaySecret,
+    validateBody(twoFAVerifySchema),
+    authController.twoFAVerifyHandler,
 );
 
 export default router;

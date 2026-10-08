@@ -1,5 +1,10 @@
 import type { Request, Response } from "express";
-import { AppError, failResponse, successResponse } from "shared";
+import {
+    AppError,
+    failResponse,
+    requireIdentity,
+    successResponse,
+} from "shared";
 import z from "zod";
 import * as refreshTokenRepo from "../repositories/refreshToken.repo";
 import {
@@ -7,6 +12,7 @@ import {
     LoginInput,
     RegisterInput,
     ResetPasswordInput,
+    TwoFAVerifyInput,
     VerifyEmailInput,
     verifyEmailSchema,
 } from "../schemas/auth.schemas";
@@ -117,4 +123,27 @@ export async function resetPasswordHandler(
     await authService.resetPassword(token, password);
 
     return res.status(200).json({ message: "Password reset successfully" });
+}
+
+export async function twoFASetup(req: Request, res: Response) {
+    const { userId } = requireIdentity(req);
+
+    const { otpauthURI, secret } = await authService.twoFASetup(userId);
+    return res.status(200).json({
+        message: "Two factor setup successful",
+        otpauthURI,
+        secret,
+    });
+}
+
+export async function twoFAVerifyHandler(
+    req: Request<{}, {}, TwoFAVerifyInput>,
+    res: Response,
+) {
+    const { userId } = requireIdentity(req);
+    const { code } = req.body;
+
+    await authService.twoFAVerify(userId, code);
+
+    return res.status(200).json({ message: "Two factor enabled successfully" });
 }

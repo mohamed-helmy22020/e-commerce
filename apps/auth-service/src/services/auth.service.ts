@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import { generateSecret, generateURI, verify } from "otplib";
 import {
     AppError,
     createAccessToken,
@@ -92,7 +93,28 @@ export async function login(input: LoginInput) {
     if (!passwordMatch) {
         throw new AppError("Invalid email or password", 401);
     }
-    // TODO: check if user has 2FA enabled
+
+    if (user.two_factor_enabled) {
+        if (!input.twoFactorCode || input.twoFactorCode.length !== 6) {
+            throw new AppError("Missing two factor code", 400);
+        }
+        if (!user.two_factor_secret) {
+            await userRepo.updateUserById({
+                id: user.id,
+                userData: {
+                    two_factor_enabled: false,
+                },
+            });
+            throw new AppError("Two factor is not enabled", 400);
+        }
+        const { valid: isValid } = await verify({
+            secret: user.two_factor_secret,
+            token: input.twoFactorCode,
+        });
+        if (!isValid) {
+            throw new AppError("Invalid two factor code", 400);
+        }
+    }
     const accessToken = createAccessToken({ userId: user.id, role: user.role });
     const refreshToken = createRefreshToken(user.id);
     const refreshTokenHash = hashToken(refreshToken);
@@ -229,6 +251,60 @@ export async function resetPassword(token: string, password: string) {
             reset_password_token: "",
             reset_password_expires_at: new Date(),
             password_hash: newPasswordHash,
+        },
+    });
+}
+
+export async function twoFASetup(userId: string) {
+    const user = await userRepo.findById(userId);
+    if (!user) {
+        throw new AppError("User not found", 404);
+    }
+    if (user.two_factor_enabled) {
+        throw new AppError("Two factor authentication is already enabled", 400);
+    }
+    const secret = generateSecret();
+    const issuer = "E-commerce app";
+    const otpauthURI = generateURI({
+        label: user.email,
+        issuer,
+        secret,
+    });
+    await userRepo.updateUserById({
+        id: user.id,
+        userData: {
+            two_factor_enabled: false,
+            two_factor_secret: secret,
+        },
+    });
+    return {
+        otpauthURI,
+        secret,
+    };
+}
+
+export async function twoFAVerify(userId: string, code: string) {
+    const user = await userRepo.findById(userId);
+    if (!user) {
+        throw new AppError("User not found", 404);
+    }
+
+    if (!user.two_factor_secret) {
+        throw new AppError("Two factor is not enabled", 400);
+    }
+
+    const { valid: isValid } = await verify({
+        secret: user.two_factor_secret,
+        token: code,
+    });
+
+    if (!isValid) {
+        throw new AppError("Invalid two factor code", 400);
+    }
+    await userRepo.updateUserById({
+        id: user.id,
+        userData: {
+            two_factor_enabled: true,
         },
     });
 }

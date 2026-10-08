@@ -33,8 +33,12 @@ export const resetPasswordSchema = z.object({
         .min(8, { message: "Password is too short" }),
 });
 
+export const twoFAVerifySchema = z.object({
+    code: z.string().min(6),
+});
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type TwoFAVerifyInput = z.infer<typeof twoFAVerifySchema>;
