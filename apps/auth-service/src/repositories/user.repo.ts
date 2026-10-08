@@ -1,10 +1,11 @@
-import { getPool, UserRole } from "shared";
+import { AppError, getPool, UserRole } from "shared";
 import { User } from "../types/auth.types";
 
 export async function findByEmail(email: string): Promise<User | null> {
+    const normalizedEmail = email.toLowerCase().trim();
     const result = await getPool().query<User>(
         `SELECT * FROM users WHERE email = $1`,
-        [email],
+        [normalizedEmail],
     );
     return result.rows[0] ?? null;
 }
@@ -33,18 +34,19 @@ export async function createUser(input: {
     passwordHash: string;
     role?: UserRole;
     isEmailVerified?: boolean;
-}): Promise<User> {
+}): Promise<User[]> {
+    const normalizedEmail = input.email.toLowerCase().trim();
     const result = await getPool().query<User>(
-        `INSERT INTO users (name, email, password_hash, role, is_email_verified) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+        `INSERT INTO users (name, email, password_hash, role, is_email_verified) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (email) DO NOTHING RETURNING *`,
         [
             input.name,
-            input.email,
+            normalizedEmail,
             input.passwordHash,
             input.role ?? "USER",
             input.isEmailVerified ?? false,
         ],
     );
-    return result.rows[0];
+    return result.rows;
 }
 
 export async function verifyEmail(userId: string) {
@@ -77,8 +79,9 @@ export async function updateUserById(input: {
     let paramIndex = 1;
 
     if (email !== undefined) {
+        const normalizedEmail = email.toLowerCase().trim();
         setClauses.push(`email = $${paramIndex}`);
-        values.push(email);
+        values.push(normalizedEmail);
         paramIndex++;
     }
     if (name !== undefined) {
@@ -134,7 +137,7 @@ export async function updateUserById(input: {
     `;
     const result = await getPool().query<User>(query, values);
     if (result.rows.length === 0) {
-        throw new Error("user not found");
+        throw new AppError("user not found", 404);
     }
     return result.rows[0];
 }

@@ -50,7 +50,7 @@ app.use(
     }),
 );
 
-app.use("/", (_req, res) => {
+app.get("/", (_req, res) => {
     res.send("E-commerce API");
 });
 

@@ -27,12 +27,17 @@ export async function register(input: RegisterInput) {
         throw new AppError("User already exists", 409);
     }
     const passwordHash = await hashPassword(input.password);
-    const user = await userRepo.createUser({
-        name: input.name,
-        email: normalizedEmail,
-        passwordHash,
-        role: "USER",
-    });
+    const user = (
+        await userRepo.createUser({
+            name: input.name,
+            email: normalizedEmail,
+            passwordHash,
+            role: "USER",
+        })
+    )[0];
+    if (!user) {
+        throw new AppError("User already exists", 409);
+    }
     const accessToken = createAccessToken({ userId: user.id, role: user.role });
     const emailVerificationToken = jwt.sign(
         {
