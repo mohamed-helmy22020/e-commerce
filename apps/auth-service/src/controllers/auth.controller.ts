@@ -70,6 +70,11 @@ export async function login(req: Request<{}, {}, LoginInput>, res: Response) {
     return successResponse(res, result, 200);
 }
 
+export async function logoutHandler(_req: Request, res: Response) {
+    res.clearCookie("refreshToken", { path: "/" });
+    return res.status(200).json({ message: "Logged out successfully" });
+}
+
 export async function getMe(req: Request, res: Response) {
     const userId = req.headers["x-user-id"] as string;
     if (!userId) {

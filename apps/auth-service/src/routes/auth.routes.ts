@@ -9,5 +9,6 @@ router.post("/login", validateBody(loginSchema), authController.login);
 router.get("/me", authController.getMe);
 router.get("/verify-email/:token", authController.verifyEmail);
 router.post("/refresh-token", authController.refreshHandler);
+router.post("/logout", authController.logoutHandler);
 
 export default router;
