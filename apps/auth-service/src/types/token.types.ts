@@ -1,6 +1,6 @@
 export type RefreshToken = {
     id: string;
-    userId: string;
+    user_id: string;
     token_hash: string;
     family_id: string;
     revoked: boolean;

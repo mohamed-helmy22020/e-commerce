@@ -18,6 +18,7 @@ import {
 } from "../schemas/auth.schemas";
 import * as authService from "../services/auth.service";
 import { convertToPublicUser } from "../utils/auth.utils";
+import { hashToken } from "../utils/hash";
 
 export async function register(
     req: Request<{}, {}, RegisterInput>,
@@ -85,7 +86,7 @@ export async function logoutHandler(req: Request, res: Response) {
         throw new AppError("Missing refresh token", 401);
     }
     res.clearCookie("refreshToken", { path: "/" });
-    await refreshTokenRepo.revokeRefreshToken(refreshToken);
+    await refreshTokenRepo.revokeRefreshToken(hashToken(refreshToken));
     return res.status(200).json({ message: "Logged out successfully" });
 }
 

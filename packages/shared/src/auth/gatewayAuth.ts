@@ -7,7 +7,7 @@ export function requireIdentity(req: Request) {
     const userId = req.headers["x-user-id"] as string;
     const role = req.headers["x-user-role"] as UserRole;
     if (!userId || !role) {
-        throw new Error("Missing user identity");
+        throw new AppError("Missing user identity", 401);
     }
     return { userId, role };
 }

@@ -218,7 +218,7 @@ export async function forgotPassword(email: string) {
         },
     });
 
-    const resetPasswordUrl = `${getAppUrl()}/auth/reset-password/${tokenHash}`;
+    const resetPasswordUrl = `${getAppUrl()}/auth/reset-password/${rawToken}`;
 
     await sendEmail(
         user.email,
