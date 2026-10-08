@@ -52,6 +52,14 @@ export async function googleAuthCallback(code: string) {
         });
         if (createdUserArray.length === 0) {
             user = await userRepo.findByEmail(email);
+            if (user && !user?.is_email_verified) {
+                user = await userRepo.updateUserById({
+                    id: user.id,
+                    userData: {
+                        is_email_verified: true,
+                    },
+                });
+            }
         } else {
             user = createdUserArray[0];
         }
