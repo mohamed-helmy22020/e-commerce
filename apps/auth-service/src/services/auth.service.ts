@@ -4,14 +4,17 @@ import {
     AppError,
     createAccessToken,
     createRefreshToken,
+    getPool,
     getSecret,
     sendEmail,
     verifyRefreshToken,
 } from "shared";
+import * as refreshTokenRepo from "../repositories/refreshToken.repo";
 import * as userRepo from "../repositories/user.repo";
 import { LoginInput, RegisterInput } from "../schemas/auth.schemas";
 import { convertToPublicUser } from "../utils/auth.utils";
-import { comparePassword, hashPassword } from "../utils/hash";
+import { comparePassword, hashPassword, hashToken } from "../utils/hash";
+
 function getAppUrl() {
     return process.env.APP_URL!;
 }
@@ -92,6 +95,9 @@ export async function login(input: LoginInput) {
     // TODO: check if user has 2FA enabled
     const accessToken = createAccessToken({ userId: user.id, role: user.role });
     const refreshToken = createRefreshToken(user.id);
+    const refreshTokenHash = hashToken(refreshToken);
+
+    await refreshTokenRepo.addRefreshTokenHash(user.id, refreshTokenHash);
 
     return {
         accessToken,
@@ -109,25 +115,65 @@ export async function getMe(userId: string) {
 }
 
 export async function refreshToken(refreshToken: string) {
-    const payload = verifyRefreshToken(refreshToken);
+    const tokenHash = hashToken(refreshToken);
 
+    const payload = verifyRefreshToken(refreshToken);
     const user = await userRepo.findById(payload.userId);
     if (!user) {
         throw new AppError("Invalid refresh token", 401);
     }
+    const client = await getPool().connect();
+    try {
+        await client.query("BEGIN");
 
-    const newAccessToken = createAccessToken({
-        userId: user.id,
-        role: user.role,
-    });
+        const refreshTokenEntery = await refreshTokenRepo.findByTokenHash(
+            tokenHash,
+            client,
+        );
 
-    const newRefreshToken = createRefreshToken(user.id);
+        if (!refreshTokenEntery) {
+            throw new AppError("Invalid refresh token", 401);
+        }
+        if (refreshTokenEntery.revoked) {
+            await refreshTokenRepo.revokeAllRefreshTokensByFamilyId(
+                refreshTokenEntery.family_id,
+                client,
+            );
+            await client.query("COMMIT");
+            throw new AppError("Invalid refresh token", 401);
+        }
 
-    return {
-        newAccessToken,
-        newRefreshToken,
-        user,
-    };
+        await refreshTokenRepo.revokeRefreshToken(tokenHash, client);
+
+        const newAccessToken = createAccessToken({
+            userId: user.id,
+            role: user.role,
+        });
+
+        const newRefreshToken = createRefreshToken(user.id);
+        const newRefreshTokenHash = hashToken(newRefreshToken);
+
+        await refreshTokenRepo.addRefreshTokenHash(
+            user.id,
+            newRefreshTokenHash,
+            refreshTokenEntery.family_id,
+            client,
+        );
+        await client.query("COMMIT");
+
+        return {
+            newAccessToken,
+            newRefreshToken,
+            user,
+        };
+    } catch (err) {
+        try {
+            await client.query("ROLLBACK");
+        } catch {}
+        throw err;
+    } finally {
+        client.release();
+    }
 }
 
 export async function forgotPassword(email: string) {

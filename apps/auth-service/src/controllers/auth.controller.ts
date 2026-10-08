@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { AppError, failResponse, successResponse } from "shared";
 import z from "zod";
+import * as refreshTokenRepo from "../repositories/refreshToken.repo";
 import {
     ForgotPasswordInput,
     LoginInput,
@@ -72,8 +73,13 @@ export async function login(req: Request<{}, {}, LoginInput>, res: Response) {
     return successResponse(res, result, 200);
 }
 
-export async function logoutHandler(_req: Request, res: Response) {
+export async function logoutHandler(req: Request, res: Response) {
+    const refreshToken = req.cookies.refreshToken as string | undefined;
+    if (!refreshToken) {
+        throw new AppError("Missing refresh token", 401);
+    }
     res.clearCookie("refreshToken", { path: "/" });
+    await refreshTokenRepo.revokeRefreshToken(refreshToken);
     return res.status(200).json({ message: "Logged out successfully" });
 }
 
