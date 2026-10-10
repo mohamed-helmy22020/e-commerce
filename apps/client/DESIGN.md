@@ -8,9 +8,14 @@ Save as DESIGN.md in the repo root and reference it in every prompt.
 
 - Next.js (App Router, server components by default)
 - Tailwind CSS v4 (config via @theme and @custom-variant in globals.css)
+- shadcn/ui primitives in components/ui (style: radix-rhea, base: neutral)
+- react-hook-form + zod for every form (zodResolver from @hookform/resolvers)
 - lucide-react for all icons
 - next-themes for dark mode
+- sonner for toasts
+- cn from "cn" for class merging (re-exported as @/lib/utils)
 - next/image for every image (never raw <img>)
+- Logical (RTL-safe) spacing utilities everywhere — see section 14
 
 ============================================================ 2. FILE & NAMING CONVENTIONS
 ============================================================
@@ -32,6 +37,8 @@ ProductCard.tsx
 ProductCardSkeleton.tsx
 
 Never use kebab-case for components (site-header.tsx is WRONG).
+Exception: shadcn/ui primitives in components/ui keep their generated
+kebab-case filenames (input-group.tsx, theme-provider.tsx).
 
 ============================================================ 3. COLOR TOKENS
 ============================================================
@@ -55,9 +62,15 @@ Design is intentionally near-monochrome.
 
 RULE: every colored utility needs a dark: pair. No exceptions.
 
+The shadcn semantic tokens in globals.css are aliased to this same zinc
+scale (--primary -> zinc-900 light / zinc-100 dark, --border -> zinc-200
+/ zinc-800, --muted-foreground -> zinc-500 / zinc-400, --ring ->
+zinc-400 / zinc-500), so raw shadcn defaults stay monochrome too.
+
 ============================================================ 4. TYPOGRAPHY
 ============================================================
-Font: Inter via next/font, exposed as --font-inter -> font-sans.
+Font: Noto Sans via next/font, exposed as --font-sans -> font-sans
+(--font-heading aliases the same family in globals.css).
 
 | Role                          | Classes                                                 |
 | ----------------------------- | ------------------------------------------------------- |
@@ -145,10 +158,10 @@ of the visual language.
 
 1. EVERY color class needs a dark: counterpart. Audit with grep for
    bg-, text-, border- before shipping.
-2. Use @custom-variant dark (&:where(.dark, .dark \*)) in globals.css
-   (Tailwind v4).
+2. Use @custom-variant dark (&:is(.dark *)) in globals.css (Tailwind v4).
 3. <html> has suppressHydrationWarning; theme is applied by
-   ThemeProvider with attribute="class".
+   ThemeProvider (components/ui/theme-provider.tsx) with
+   attribute="class". The app tree is wrapped in DirectionProvider.
 4. Client components that read the theme must guard against
    hydration mismatch:
    const [mounted, setMounted] = useState(false);
@@ -234,8 +247,66 @@ components/SiteHeader.tsx
 components/ProductCard.tsx
 components/Newsletter.tsx
 components/SiteFooter.tsx
-components/ThemeToggle.tsx
-components/ThemeProvider.tsx
+components/ui/ModeToggle.tsx
+components/ui/theme-provider.tsx
+
+Auth reference: app/(auth)/layout.tsx and its pages
+app/(auth)/login/page.tsx, app/(auth)/signup/page.tsx plus:
+components/AuthShell.tsx
+components/AuthCard.tsx
+components/AuthField.tsx
+components/PasswordField.tsx
+components/LoginForm.tsx
+components/SignupForm.tsx
+lib/authSchema.ts
 
 When in doubt, match one of these exactly rather than inventing
 a new pattern.
+
+============================================================ 14. RTL & LOGICAL PROPERTIES
+============================================================
+The app ships a DirectionProvider and may run RTL in future. Write
+every layout with logical properties so the direction can flip later
+without a refactor — this applies even though the default is dir="ltr".
+
+DO                            | DON'T
+------------------------------|--------------------------------
+ps-* / pe-* (padding)         | pl-* / pr-*
+ms-* / me-* (margin)          | ml-* / mr-*
+start-* / end-* (inset)       | left-* / right-*
+text-start / text-end         | text-left / text-right
+border-s-* / border-e-*       | border-l-* / border-r-*
+rounded-s-* / rounded-e-*     | rounded-l-* / rounded-r-*
+gap-* / justify-between       | absolute left/right icon placement
+
+- Symmetric px-* / py-* are direction-neutral and fine to use.
+- Directional icons (ArrowRight, ChevronRight, ArrowLeft) do NOT
+  auto-flip in RTL. Swap them from direction or lean on gap-based
+  layouts instead of hard-coded placement.
+- Set direction once at the root: <DirectionProvider dir="rtl">.
+
+============================================================ 15. SHADCN COMPONENTS
+============================================================
+Primitives live in components/ui (style: radix-rhea, base: neutral) and
+are added with the shadcn CLI. They are building blocks, not the final
+look — always re-theme them to the zinc system above.
+
+- Naming: generated primitives keep kebab-case filenames
+  (input-group.tsx, theme-provider.tsx); your own components stay
+  PascalCase (AuthCard.tsx, PasswordField.tsx).
+- Class merging: import { cn } from "@/lib/utils" (re-exports "cn", a
+  clsx + tailwind-merge replacement). Later classes win, so a className
+  prop overrides a primitive's defaults.
+- Semantic tokens in globals.css are aliased to zinc: --primary is
+  zinc-900 with white text in light and zinc-100 with zinc-900 text in
+  dark, so variant="default" already matches the section 6 primary CTA
+  colors. Only add size/shape: h-12 rounded-full.
+- Sizing: Button/Input defaults are compact (h-8, rounded-2xl). The
+  storefront CTA and input are h-12 rounded-full — override via
+  className (cn merges, so this is safe).
+- Forms: react-hook-form + zod through a zodResolver. Compose
+  Field / FieldGroup / FieldLabel / FieldError with Input / InputGroup,
+  wired with Controller. See components/AuthField.tsx (text input) and
+  components/PasswordField.tsx (password + visibility toggle).
+- One reusable field wrapper per input shape beats repeating markup
+  across forms.
