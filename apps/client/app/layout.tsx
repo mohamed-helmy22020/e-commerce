@@ -1,8 +1,10 @@
+import { SiteHeader } from "@/components/SiteHeader";
 import { DirectionProvider } from "@/components/ui/direction";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const notoSans = Noto_Sans({ subsets: ["latin"], variable: "--font-sans" });
@@ -18,7 +20,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             lang="en"
             dir="ltr"
             className={cn(
-                "h-full",
+                "h-full min-h-screen bg-white font-sans text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100",
                 "antialiased",
                 "font-sans",
                 notoSans.variable,
@@ -33,7 +35,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                     disableTransitionOnChange
                 >
                     <DirectionProvider direction="ltr" dir="ltr">
+                        <SiteHeader />
                         {children}
+                        <Toaster closeButton />
                     </DirectionProvider>
                 </ThemeProvider>
             </body>
