@@ -75,12 +75,27 @@ export function SiteHeader() {
 
                         <ModeToggle />
 
-                        <button
-                            aria-label="Account"
-                            className="rounded-lg p-2 transition hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                        <Link
+                            href="/login"
+                            aria-label="Sign in"
+                            className="rounded-lg p-2 transition hover:bg-zinc-100 lg:hidden dark:hover:bg-zinc-800"
                         >
                             <User className="size-5" />
-                        </button>
+                        </Link>
+
+                        <Link
+                            href="/login"
+                            className="hidden h-9 items-center rounded-full px-3 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 lg:inline-flex dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                        >
+                            Sign in
+                        </Link>
+
+                        <Link
+                            href="/signup"
+                            className="hidden h-9 items-center rounded-full bg-zinc-900 px-4 text-sm font-medium text-white transition hover:bg-zinc-700 lg:inline-flex dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+                        >
+                            Sign up
+                        </Link>
 
                         <button
                             aria-label="Cart"
@@ -137,6 +152,23 @@ export function SiteHeader() {
                             </Link>
                         ))}
                     </nav>
+
+                    <div className="mt-6 flex flex-col gap-3">
+                        <Link
+                            href="/login"
+                            onClick={() => setOpen(false)}
+                            className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-300 bg-white px-7 text-sm font-medium text-zinc-900 transition hover:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:border-zinc-400"
+                        >
+                            Sign in
+                        </Link>
+                        <Link
+                            href="/signup"
+                            onClick={() => setOpen(false)}
+                            className="inline-flex h-12 items-center justify-center rounded-full bg-zinc-900 px-7 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+                        >
+                            Create account
+                        </Link>
+                    </div>
 
                     <div className="mt-auto border-t border-zinc-200 pt-6 text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
                         <p>Need help?</p>

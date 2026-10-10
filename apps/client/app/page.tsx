@@ -83,7 +83,7 @@ export default function HomePage() {
 
                         {/* Image collage */}
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="relative aspect-[3/4] overflow-hidden rounded-3xl bg-zinc-100 dark:bg-zinc-800">
+                            <div className="relative aspect-3/4 overflow-hidden rounded-3xl bg-zinc-100 dark:bg-zinc-800">
                                 <Image
                                     src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=900&q=80"
                                     alt="Model wearing the new season collection"
@@ -103,7 +103,7 @@ export default function HomePage() {
                                         className="object-cover"
                                     />
                                 </div>
-                                <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-zinc-100 dark:bg-zinc-800">
+                                <div className="relative aspect-4/5 overflow-hidden rounded-3xl bg-zinc-100 dark:bg-zinc-800">
                                     <Image
                                         src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=700&q=80"
                                         alt="Automatic watch"
@@ -162,7 +162,7 @@ export default function HomePage() {
                             <Link
                                 key={cat.name}
                                 href={cat.href}
-                                className="group relative block aspect-[4/5] overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800"
+                                className="group relative block aspect-4/5 overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800"
                             >
                                 <Image
                                     src={cat.image}
@@ -171,7 +171,7 @@ export default function HomePage() {
                                     sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-zinc-900/10 to-transparent" />
+                                <div className="absolute inset-0 bg-linear-to-t from-zinc-900/80 via-zinc-900/10 to-transparent" />
                                 <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-5">
                                     <div>
                                         <h3 className="text-base font-medium text-white">
@@ -246,7 +246,7 @@ export default function HomePage() {
                 {/* ───────────────────────── Promo ───────────────────────── */}
                 <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
                     <div className="grid overflow-hidden rounded-3xl bg-zinc-900 dark:bg-zinc-100 lg:grid-cols-2">
-                        <div className="relative min-h-[320px] lg:min-h-[460px]">
+                        <div className="relative min-h-80px lg:min-h-115">
                             <Image
                                 src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80"
                                 alt="Autumn collection"

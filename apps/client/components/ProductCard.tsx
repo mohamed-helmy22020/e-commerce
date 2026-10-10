@@ -12,7 +12,7 @@ export function ProductCard({ product }: { product: Product }) {
 
     return (
         <div className="group">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+            <div className="relative aspect-4/5 overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800">
                 <Image
                     src={product.image}
                     alt={product.name}
