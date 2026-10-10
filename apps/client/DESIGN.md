@@ -251,13 +251,16 @@ components/ui/ModeToggle.tsx
 components/ui/theme-provider.tsx
 
 Auth reference: app/(auth)/layout.tsx and its pages
-app/(auth)/login/page.tsx, app/(auth)/signup/page.tsx plus:
+app/(auth)/login/page.tsx, app/(auth)/signup/page.tsx,
+app/(auth)/forgot-password/page.tsx plus:
 components/AuthShell.tsx
 components/AuthCard.tsx
 components/AuthField.tsx
 components/PasswordField.tsx
+components/AuthSubmitButton.tsx
 components/LoginForm.tsx
 components/SignupForm.tsx
+components/ForgotPasswordForm.tsx
 lib/authSchema.ts
 
 When in doubt, match one of these exactly rather than inventing
@@ -309,4 +312,4 @@ look — always re-theme them to the zinc system above.
   wired with Controller. See components/AuthField.tsx (text input) and
   components/PasswordField.tsx (password + visibility toggle).
 - One reusable field wrapper per input shape beats repeating markup
-  across forms.
+  across forms; share the primary CTA via AuthSubmitButton.

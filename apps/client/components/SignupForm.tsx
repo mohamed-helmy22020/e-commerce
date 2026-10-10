@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 
 import { AuthField } from "@/components/AuthField";
+import { AuthSubmitButton } from "@/components/AuthSubmitButton";
 import { PasswordField } from "@/components/PasswordField";
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { signupSchema, type SignupValues } from "@/lib/authSchema";
 
@@ -53,12 +53,7 @@ export function SignupForm() {
                 />
             </FieldGroup>
 
-            <Button
-                type="submit"
-                className="h-12 w-full rounded-full bg-zinc-900 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-            >
-                Create account
-            </Button>
+            <AuthSubmitButton>Create account</AuthSubmitButton>
 
             <p className="text-center text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
                 By creating an account you agree to our{" "}

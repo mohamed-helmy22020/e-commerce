@@ -18,5 +18,10 @@ export const signupSchema = z.object({
         .min(8, "Password must be at least 8 characters."),
 });
 
+export const forgotPasswordSchema = z.object({
+    email: z.email("Enter a valid email address."),
+});
+
 export type LoginValues = z.infer<typeof loginSchema>;
 export type SignupValues = z.infer<typeof signupSchema>;
+export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;

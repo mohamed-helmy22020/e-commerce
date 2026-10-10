@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 
 import { AuthField } from "@/components/AuthField";
+import { AuthSubmitButton } from "@/components/AuthSubmitButton";
 import { PasswordField } from "@/components/PasswordField";
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { loginSchema, type LoginValues } from "@/lib/authSchema";
 
@@ -44,7 +44,7 @@ export function LoginForm() {
                     autoComplete="current-password"
                     action={
                         <Link
-                            href="#"
+                            href="/forgot-password"
                             className="text-sm font-medium text-zinc-600 transition hover:text-zinc-900 hover:underline dark:text-zinc-400 dark:hover:text-zinc-100"
                         >
                             Forgot password?
@@ -53,12 +53,7 @@ export function LoginForm() {
                 />
             </FieldGroup>
 
-            <Button
-                type="submit"
-                className="h-12 w-full rounded-full bg-zinc-900 text-sm font-medium text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-            >
-                Sign in
-            </Button>
+            <AuthSubmitButton>Sign in</AuthSubmitButton>
         </form>
     );
 }
