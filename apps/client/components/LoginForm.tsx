@@ -8,18 +8,47 @@ import { AuthField } from "@/components/AuthField";
 import { AuthSubmitButton } from "@/components/AuthSubmitButton";
 import { PasswordField } from "@/components/PasswordField";
 import { FieldGroup } from "@/components/ui/field";
+import { login } from "@/lib/actions/auth-actions";
 import { loginSchema, type LoginValues } from "@/lib/authSchema";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function LoginForm() {
+    const router = useRouter();
     const form = useForm<LoginValues>({
         resolver: zodResolver(loginSchema),
         defaultValues: { email: "", password: "" },
         mode: "onTouched",
     });
 
-    const onSubmit = (values: LoginValues) => {
-        // UI only — authentication is not wired up yet.
-        void values;
+    const onSubmit = async (values: LoginValues) => {
+        const result = await login(values);
+        console.log({ result });
+        if (!result.ok) {
+            if (result.fieldErrors) {
+                if (result.fieldErrors.properties?.email?.errors) {
+                    form.setError("email", {
+                        message:
+                            result.fieldErrors.properties?.email?.errors[0],
+                    });
+                }
+                if (result.fieldErrors.properties?.password?.errors) {
+                    form.setError("password", {
+                        message:
+                            result.fieldErrors.properties?.password?.errors[0],
+                    });
+                }
+            } else {
+                form.setError("root", {
+                    message: result.message,
+                });
+            }
+            return;
+        }
+        form.reset();
+        toast.success(result.data?.message);
+        router.push("/login");
     };
 
     return (
@@ -53,7 +82,22 @@ export function LoginForm() {
                 />
             </FieldGroup>
 
-            <AuthSubmitButton>Sign in</AuthSubmitButton>
+            {form.formState.errors.root && (
+                <p className="text-sm text-destructive">
+                    {form.formState.errors.root.message}
+                </p>
+            )}
+
+            <AuthSubmitButton disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Logging in
+                    </>
+                ) : (
+                    "Sign in"
+                )}
+            </AuthSubmitButton>
         </form>
     );
 }

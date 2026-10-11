@@ -7,7 +7,7 @@ import app from "./app";
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), "../../.env") });
 
-const PORT = process.env.AUTH_PORT || 3001;
+const PORT = process.env.AUTH_PORT || 5001;
 
 async function startServer() {
     const server = http.createServer(app);

@@ -8,18 +8,51 @@ import { AuthField } from "@/components/AuthField";
 import { AuthSubmitButton } from "@/components/AuthSubmitButton";
 import { PasswordField } from "@/components/PasswordField";
 import { FieldGroup } from "@/components/ui/field";
+import { createAccount } from "@/lib/actions/auth-actions";
 import { signupSchema, type SignupValues } from "@/lib/authSchema";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function SignupForm() {
+    const router = useRouter();
     const form = useForm<SignupValues>({
         resolver: zodResolver(signupSchema),
         defaultValues: { name: "", email: "", password: "" },
         mode: "onTouched",
     });
 
-    const onSubmit = (values: SignupValues) => {
-        // UI only — account creation is not wired up yet.
-        void values;
+    const onSubmit = async (values: SignupValues) => {
+        const result = await createAccount(values);
+        console.log({ result });
+        if (!result.ok) {
+            if (result.fieldErrors) {
+                if (result.fieldErrors.properties?.name?.errors) {
+                    form.setError("name", {
+                        message: result.fieldErrors.properties?.name?.errors[0],
+                    });
+                }
+                if (result.fieldErrors.properties?.email?.errors) {
+                    form.setError("email", {
+                        message:
+                            result.fieldErrors.properties?.email?.errors[0],
+                    });
+                }
+                if (result.fieldErrors.properties?.password?.errors) {
+                    form.setError("password", {
+                        message:
+                            result.fieldErrors.properties?.password?.errors[0],
+                    });
+                }
+            } else {
+                form.setError("root", {
+                    message: result.message,
+                });
+            }
+        }
+        form.reset();
+        toast.success("Account created successfully");
+        router.push("/login");
     };
 
     return (
@@ -53,7 +86,22 @@ export function SignupForm() {
                 />
             </FieldGroup>
 
-            <AuthSubmitButton>Create account</AuthSubmitButton>
+            {form.formState.errors.root && (
+                <p className="text-sm text-destructive">
+                    {form.formState.errors.root.message}
+                </p>
+            )}
+
+            <AuthSubmitButton disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating account
+                    </>
+                ) : (
+                    "Create account"
+                )}
+            </AuthSubmitButton>
 
             <p className="text-center text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
                 By creating an account you agree to our{" "}

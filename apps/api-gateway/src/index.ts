@@ -16,9 +16,9 @@ import { gatewayAuth } from "./middleware/gatewayAuth";
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), "../../.env") });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 const AUTH_SERVICE_URL =
-    process.env.AUTH_SERVICE_URL || "http://localhost:3001";
+    process.env.AUTH_SERVICE_URL || "http://localhost:5001";
 
 const app = express();
 

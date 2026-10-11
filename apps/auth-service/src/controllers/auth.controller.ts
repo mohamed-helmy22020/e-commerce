@@ -25,7 +25,11 @@ export async function register(
     res: Response,
 ) {
     const result = await authService.register(req.body);
-    return successResponse(res, result, 201);
+    return successResponse(
+        res,
+        { message: "Registered successfully", ...result },
+        201,
+    );
 }
 
 export async function verifyEmail(
@@ -77,7 +81,11 @@ export async function login(req: Request<{}, {}, LoginInput>, res: Response) {
         sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7 * 1000,
     });
-    return successResponse(res, result, 200);
+    return successResponse(
+        res,
+        { message: "Logged in successfully", ...result },
+        200,
+    );
 }
 
 export async function logoutHandler(req: Request, res: Response) {
@@ -87,7 +95,7 @@ export async function logoutHandler(req: Request, res: Response) {
     }
     res.clearCookie("refreshToken", { path: "/" });
     await refreshTokenRepo.revokeRefreshToken(hashToken(refreshToken));
-    return res.status(200).json({ message: "Logged out successfully" });
+    return successResponse(res, { message: "Logged out successfully" }, 200);
 }
 
 export async function getMe(req: Request, res: Response) {
@@ -108,11 +116,14 @@ export async function forgotPasswordHandler(
 
     await authService.forgotPassword(normalizedEmail);
 
-    return res.status(200).json({
-        success: true,
-        message:
-            "if an account with this email exists, we will send you a reset link",
-    });
+    return successResponse(
+        res,
+        {
+            message:
+                "if an account with this email exists, we will send you a reset link",
+        },
+        200,
+    );
 }
 
 export async function resetPasswordHandler(
@@ -122,19 +133,26 @@ export async function resetPasswordHandler(
     const { token, password } = req.body;
 
     await authService.resetPassword(token, password);
-
-    return res.status(200).json({ message: "Password reset successfully" });
+    return successResponse(
+        res,
+        { message: "Password reset successfully" },
+        200,
+    );
 }
 
 export async function twoFASetup(req: Request, res: Response) {
     const { userId } = requireIdentity(req);
 
     const { otpauthURI, secret } = await authService.twoFASetup(userId);
-    return res.status(200).json({
-        message: "Two factor setup successful",
-        otpauthURI,
-        secret,
-    });
+    return successResponse(
+        res,
+        {
+            message: "Two factor setup successful",
+            otpauthURI,
+            secret,
+        },
+        200,
+    );
 }
 
 export async function twoFAVerifyHandler(
@@ -145,6 +163,9 @@ export async function twoFAVerifyHandler(
     const { code } = req.body;
 
     await authService.twoFAVerify(userId, code);
-
-    return res.status(200).json({ message: "Two factor enabled successfully" });
+    return successResponse(
+        res,
+        { message: "Two factor enabled successfully" },
+        200,
+    );
 }
