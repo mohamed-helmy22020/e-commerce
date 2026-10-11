@@ -252,7 +252,8 @@ components/ui/theme-provider.tsx
 
 Auth reference: app/(auth)/layout.tsx and its pages
 app/(auth)/login/page.tsx, app/(auth)/signup/page.tsx,
-app/(auth)/forgot-password/page.tsx plus:
+app/(auth)/forgot-password/page.tsx,
+app/(auth)/reset-password/[code]/page.tsx plus:
 components/AuthShell.tsx
 components/AuthCard.tsx
 components/AuthField.tsx
@@ -261,7 +262,13 @@ components/AuthSubmitButton.tsx
 components/LoginForm.tsx
 components/SignupForm.tsx
 components/ForgotPasswordForm.tsx
+components/ResetPasswordForm.tsx
 lib/authSchema.ts
+lib/actions/auth-actions.ts
+
+Dynamic route params (e.g. reset-password/[code]) are runtime data
+under cacheComponents, so read them inside a Suspense boundary: keep
+the page shell sync and await params in a child component.
 
 When in doubt, match one of these exactly rather than inventing
 a new pattern.

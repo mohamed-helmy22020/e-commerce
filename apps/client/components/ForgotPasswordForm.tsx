@@ -1,14 +1,15 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MailCheck } from "lucide-react";
+import { Loader2, MailCheck } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { AuthField } from "@/components/AuthField";
 import { AuthSubmitButton } from "@/components/AuthSubmitButton";
 import { FieldGroup } from "@/components/ui/field";
+import { forgotPassword } from "@/lib/actions/auth-actions";
 import {
     forgotPasswordSchema,
     type ForgotPasswordValues,
@@ -22,10 +23,29 @@ export function ForgotPasswordForm() {
         defaultValues: { email: "" },
         mode: "onTouched",
     });
-
-    const onSubmit = (values: ForgotPasswordValues) => {
-        // UI only — no email is actually sent.
+    useLayoutEffect(() => {
+        form.clearErrors();
+    }, []);
+    const onSubmit = async (values: ForgotPasswordValues) => {
+        const result = await forgotPassword(values);
+        console.log({ result });
+        if (!result.ok) {
+            if (result.fieldErrors) {
+                if (result.fieldErrors.properties?.email?.errors) {
+                    form.setError("email", {
+                        message:
+                            result.fieldErrors.properties?.email?.errors[0],
+                    });
+                }
+            } else {
+                form.setError("root", {
+                    message: result.message,
+                });
+            }
+            return;
+        }
         setSentTo(values.email);
+        form.reset();
     };
 
     if (sentTo) {
@@ -40,12 +60,12 @@ export function ForgotPasswordForm() {
                         Check your email
                     </h2>
                     <p className="text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-                        We sent a password reset link to{" "}
+                        If an account exists with that email address{" "}
                         <span className="font-medium text-zinc-900 dark:text-zinc-100">
                             {sentTo}
                         </span>
-                        . It may take a minute to arrive — remember to check
-                        spam.
+                        , we'll send a password reset link shortly. Please check
+                        your inbox (and spam folder).
                     </p>
                 </div>
 
@@ -82,7 +102,22 @@ export function ForgotPasswordForm() {
                 />
             </FieldGroup>
 
-            <AuthSubmitButton>Send reset link</AuthSubmitButton>
+            {form.formState.errors.root && (
+                <p className="text-sm text-destructive">
+                    {form.formState.errors.root.message}
+                </p>
+            )}
+
+            <AuthSubmitButton disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending reset link
+                    </>
+                ) : (
+                    "Send reset link"
+                )}
+            </AuthSubmitButton>
         </form>
     );
 }

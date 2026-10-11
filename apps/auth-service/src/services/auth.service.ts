@@ -48,7 +48,7 @@ export async function register(input: RegisterInput) {
             expiresIn: "1h",
         },
     );
-    const emailVerificationUrl = `${getAppUrl()}/auth/verify-email/${emailVerificationToken}`;
+    const emailVerificationUrl = `${getAppUrl()}/verify-email/${emailVerificationToken}`;
 
     await sendEmail(
         user.email,
@@ -223,7 +223,7 @@ export async function forgotPassword(email: string) {
         },
     });
 
-    const resetPasswordUrl = `${getAppUrl()}/auth/reset-password/${rawToken}`;
+    const resetPasswordUrl = `${getAppUrl()}/reset-password/${rawToken}`;
 
     await sendEmail(
         user.email,

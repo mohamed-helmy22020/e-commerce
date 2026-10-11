@@ -12,6 +12,7 @@ import { login } from "@/lib/actions/auth-actions";
 import { loginSchema, type LoginValues } from "@/lib/authSchema";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLayoutEffect } from "react";
 import { toast } from "sonner";
 
 export function LoginForm() {
@@ -21,7 +22,9 @@ export function LoginForm() {
         defaultValues: { email: "", password: "" },
         mode: "onTouched",
     });
-
+    useLayoutEffect(() => {
+        form.reset();
+    }, []);
     const onSubmit = async (values: LoginValues) => {
         const result = await login(values);
         console.log({ result });

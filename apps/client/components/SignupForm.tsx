@@ -12,6 +12,7 @@ import { createAccount } from "@/lib/actions/auth-actions";
 import { signupSchema, type SignupValues } from "@/lib/authSchema";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLayoutEffect } from "react";
 import { toast } from "sonner";
 
 export function SignupForm() {
@@ -21,7 +22,9 @@ export function SignupForm() {
         defaultValues: { name: "", email: "", password: "" },
         mode: "onTouched",
     });
-
+    useLayoutEffect(() => {
+        form.reset();
+    }, []);
     const onSubmit = async (values: SignupValues) => {
         const result = await createAccount(values);
         console.log({ result });
@@ -49,6 +52,7 @@ export function SignupForm() {
                     message: result.message,
                 });
             }
+            return;
         }
         form.reset();
         toast.success("Account created successfully");

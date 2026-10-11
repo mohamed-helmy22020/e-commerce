@@ -1,3 +1,7 @@
+type SuccessResponse<T = Record<string, unknown>> = {
+    success: true;
+    data: T;
+};
 type User = {
     id: string;
     name: string;
@@ -8,11 +12,8 @@ type User = {
     created_at: Date;
 };
 
-type AuthResponse = {
-    success: boolean;
-    data: {
-        message: string;
-        accessToken: string;
-        user: User;
-    };
-};
+type AuthResponse = SuccessResponse<{
+    message: string;
+    accessToken: string;
+    user: User;
+}>;
