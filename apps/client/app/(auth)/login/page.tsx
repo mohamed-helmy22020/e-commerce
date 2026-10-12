@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AuthCard } from "@/components/AuthCard";
+import { AuthDivider } from "@/components/AuthDivider";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { LoginForm } from "@/components/LoginForm";
 
 export const metadata: Metadata = {
@@ -26,7 +28,11 @@ export default function LoginPage() {
                 </>
             }
         >
-            <LoginForm />
+            <div className="flex flex-col gap-6">
+                <GoogleAuthButton />
+                <AuthDivider />
+                <LoginForm />
+            </div>
         </AuthCard>
     );
 }

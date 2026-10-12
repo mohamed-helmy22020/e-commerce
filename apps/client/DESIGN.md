@@ -10,23 +10,27 @@ Save as DESIGN.md in the repo root and reference it in every prompt.
 - Tailwind CSS v4 (config via @theme and @custom-variant in globals.css)
 - shadcn/ui primitives in components/ui (style: radix-rhea, base: neutral)
 - react-hook-form + zod for every form (zodResolver from @hookform/resolvers)
-- lucide-react for all icons
+- lucide-react for UI icons; @hugeicons/core-free-icons for brand
+  marks (e.g. the Google sign-in button)
 - next-themes for dark mode
 - sonner for toasts
+- zustand for client state; stores live in stores/ — see section 16
 - cn from "cn" for class merging (re-exported as @/lib/utils)
 - next/image for every image (never raw <img>)
 - Logical (RTL-safe) spacing utilities everywhere — see section 14
 
-============================================================ 2. FILE & NAMING CONVENTIONS
-============================================================
-Type | Convention | Example
-----------------|---------------------------|-------------------------
-React component | PascalCase.tsx | SiteHeader.tsx, ProductCard.tsx
-Utility/helper | camelCase.ts | formatPrice.ts
-Hook | camelCase.ts, use prefix | useCart.ts
-Data/fixtures | camelCase.ts | products.ts
-Route file | Next.js reserved | page.tsx, layout.tsx
-Config | kebab-case | next.config.ts
+# ============================================================ 2. FILE & NAMING CONVENTIONS
+
+| Type            | Convention               | Example                          |
+| --------------- | ------------------------ | -------------------------------- |
+| React component | PascalCase.tsx           | SiteHeader.tsx, ProductCard.tsx  |
+| Utility/helper  | camelCase.ts             | formatPrice.ts                   |
+| Hook            | camelCase.ts, use prefix | useCart.ts                       |
+| Data/fixtures   | camelCase.ts             | products.ts                      |
+| Store           | camelCase.ts             | user.store.ts                    |
+| Server action   | camelCase                | auth-actions.ts, user.actions.ts |
+| Route file      | Next.js reserved         | page.tsx, layout.tsx             |
+| Config          | kebab-case               | next.config.ts                   |
 
 Component folders: keep flat in components/ unless a component has
 3+ private sub-components, then use a folder:
@@ -40,8 +44,8 @@ Never use kebab-case for components (site-header.tsx is WRONG).
 Exception: shadcn/ui primitives in components/ui keep their generated
 kebab-case filenames (input-group.tsx, theme-provider.tsx).
 
-============================================================ 3. COLOR TOKENS
-============================================================
+# ============================================================ 3. COLOR TOKENS
+
 Use zinc as the neutral scale everywhere. Do not mix grays
 (gray, slate, neutral) with zinc.
 
@@ -67,8 +71,8 @@ scale (--primary -> zinc-900 light / zinc-100 dark, --border -> zinc-200
 / zinc-800, --muted-foreground -> zinc-500 / zinc-400, --ring ->
 zinc-400 / zinc-500), so raw shadcn defaults stay monochrome too.
 
-============================================================ 4. TYPOGRAPHY
-============================================================
+# ============================================================ 4. TYPOGRAPHY
+
 Font: Noto Sans via next/font, exposed as --font-sans -> font-sans
 (--font-heading aliases the same family in globals.css).
 
@@ -85,8 +89,7 @@ Font: Noto Sans via next/font, exposed as --font-sans -> font-sans
 
 Headings use tracking-tight. Wordmark is the only wide-tracked text.
 
-============================================================ 5. LAYOUT & SPACING
-============================================================
+# ============================================================ 5. LAYOUT & SPACING
 
 - Container: mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 on every section.
   No custom max-widths unless intentionally narrow (newsletter: max-w-3xl).
@@ -96,8 +99,8 @@ Headings use tracking-tight. Wordmark is the only wide-tracked text.
   gap-8 / gap-12 content columns.
 - Never hardcode pixel spacing like mt-[37px]. Use the Tailwind scale.
 
-============================================================ 6. COMPONENT PATTERNS
-============================================================
+# ============================================================ 6. COMPONENT PATTERNS
+
 BUTTONS
 Primary (dark bg):
 inline-flex h-12 items-center gap-2 rounded-full bg-zinc-900
@@ -153,12 +156,11 @@ Dark: dark:bg-zinc-100 dark:text-zinc-900
 Never make these sections dark in both modes — the flip is part
 of the visual language.
 
-============================================================ 7. DARK MODE RULES
-============================================================
+# ============================================================ 7. DARK MODE RULES
 
 1. EVERY color class needs a dark: counterpart. Audit with grep for
    bg-, text-, border- before shipping.
-2. Use @custom-variant dark (&:is(.dark *)) in globals.css (Tailwind v4).
+2. Use @custom-variant dark (&:is(.dark \*)) in globals.css (Tailwind v4).
 3. <html> has suppressHydrationWarning; theme is applied by
    ThemeProvider (components/ui/theme-provider.tsx) with
    attribute="class". The app tree is wrapped in DirectionProvider.
@@ -170,8 +172,7 @@ of the visual language.
    images don't flash white.
 6. Color swatches use ring-offset-white dark:ring-offset-zinc-950.
 
-============================================================ 8. ACCESSIBILITY BASELINE
-============================================================
+# ============================================================ 8. ACCESSIBILITY BASELINE
 
 - Every icon-only button: aria-label + visible hover state.
 - Interactive elements: transition on hover/focus; never remove
@@ -181,8 +182,8 @@ of the visual language.
 - Contrast: text pairs above meet WCAG AA at their size
   (zinc-900/white, zinc-600/zinc-50, white/zinc-900).
 
-============================================================ 9. RESPONSIVENESS
-============================================================
+# ============================================================ 9. RESPONSIVENESS
+
 Breakpoints used: sm (640), md (768), lg (1024).
 
 - Product grids: grid-cols-1 sm:grid-cols-2 lg:grid-cols-4
@@ -191,23 +192,26 @@ Breakpoints used: sm (640), md (768), lg (1024).
 - Nav: mobile drawer below lg, inline nav at lg
 - Search: icon-only below md, full input at md+
 
-============================================================ 10. MOTION
-============================================================
+# ============================================================ 10. MOTION
 
 - Duration: duration-300 for UI, duration-700 for image zoom.
 - Easing: default; ease-out for image transforms.
 - Never animate layout properties (width, height, top, left).
   Only transform and opacity.
 
-============================================================ 11. PAGE STRUCTURE TEMPLATE
-============================================================
-import { SiteHeader } from "@/components/SiteHeader";
+# ============================================================ 11. PAGE STRUCTURE TEMPLATE
+
+The site header is rendered ONCE in the root layout (app/layout.tsx),
+so pages never include it. Auth pages get the shared AuthShell from
+app/(auth)/layout.tsx. A normal page renders its own <main> content
+plus the footer:
+
 import { SiteFooter } from "@/components/SiteFooter";
 
 export default function SomePage() {
 return (
 <>
-<SiteHeader />
+
 <main>
 {/_ sections _/}
 </main>
@@ -225,23 +229,23 @@ Sections inside <main> alternate between:
 Never put two of the same background type adjacent without a border
 or spacing cue.
 
-============================================================ 12. DO / DON'T CHEAT SHEET
-============================================================
-DO | DON'T
------------------------------------------|--------------------------------
-Use zinc scale everywhere | Mix gray / slate / neutral
-Add dark: for every color | Ship light-only styles
-PascalCase.tsx components | kebab-case.tsx components
-mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 | Custom container widths
-rounded-full for CTAs | rounded-md on big buttons
-lucide-react icons at size-4 / size-5 | Inline SVGs, mixed icon libs
-next/image with sizes prop | Raw <img>
-transition on hover | No hover feedback
-Invert sections in dark mode | Keep them dark in both
-Client components only when needed | "use client" on every file
+# ============================================================ 12. DO / DON'T CHEAT SHEET
 
-============================================================ 13. REFERENCE IMPLEMENTATION
-============================================================
+| DO                                     | DON'T                        |
+| -------------------------------------- | ---------------------------- |
+| Use zinc scale everywhere              | Mix gray / slate / neutral   |
+| Add dark: for every color              | Ship light-only styles       |
+| PascalCase.tsx components              | kebab-case.tsx components    |
+| mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 | Custom container widths      |
+| rounded-full for CTAs                  | rounded-md on big buttons    |
+| lucide-react icons at size-4 / size-5  | Inline SVGs, mixed icon libs |
+| next/image with sizes prop             | Raw <img>                    |
+| transition on hover                    | No hover feedback            |
+| Invert sections in dark mode           | Keep them dark in both       |
+| Client components only when needed     | "use client" on every file   |
+
+# ============================================================ 13. REFERENCE IMPLEMENTATION
+
 Canonical reference: app/page.tsx plus:
 components/SiteHeader.tsx (server, auth-aware)
 components/SiteHeaderNav.tsx (client header markup)
@@ -266,8 +270,12 @@ components/LoginForm.tsx
 components/SignupForm.tsx
 components/ForgotPasswordForm.tsx
 components/ResetPasswordForm.tsx
+components/GoogleAuthButton.tsx
+components/AuthDivider.tsx
 lib/authSchema.ts
 lib/actions/auth-actions.ts
+lib/actions/user.actions.ts
+stores/user.store.ts
 
 Dynamic route params (e.g. reset-password/[code]) are runtime data
 under cacheComponents, so read them inside a Suspense boundary: keep
@@ -280,40 +288,41 @@ false` and calls the server action directly in the Server Component.
 The site header is auth-aware without making the whole app dynamic:
 components/SiteHeader.tsx is a Server Component that resolves the
 signed-in user inside a Suspense boundary (fallback = the same header
-with no user, showing a skeleton). It does not call the backend on
-every render: lib/auth.ts keeps a small user snapshot cookie that the
-login/register actions write and logout clears, and passes it to the
-client SiteHeaderNav / UserMenu. Signed in shows an account dropdown
-(components/UserMenu.tsx) with a Sign out form action; signed out
-keeps the Sign in / Sign up links.
+with no user, showing a skeleton). It calls getCurrentUser()
+(lib/actions/user.actions.ts, a GET /auth/me through the server api())
+and passes the user to the client SiteHeaderNav / UserMenu. Signed in
+shows an account dropdown (components/UserMenu.tsx) with a Sign out
+form action (lib/actions/auth-actions.ts); signed out keeps the Sign
+in / Sign up links. SiteHeaderNav mirrors the resolved user into the
+persisted client store (stores/user.store.ts) — see section 16.
 
 When in doubt, match one of these exactly rather than inventing
 a new pattern.
 
-============================================================ 14. RTL & LOGICAL PROPERTIES
-============================================================
+# ============================================================ 14. RTL & LOGICAL PROPERTIES
+
 The app ships a DirectionProvider and may run RTL in future. Write
 every layout with logical properties so the direction can flip later
 without a refactor — this applies even though the default is dir="ltr".
 
-DO                            | DON'T
-------------------------------|--------------------------------
-ps-* / pe-* (padding)         | pl-* / pr-*
-ms-* / me-* (margin)          | ml-* / mr-*
-start-* / end-* (inset)       | left-* / right-*
-text-start / text-end         | text-left / text-right
-border-s-* / border-e-*       | border-l-* / border-r-*
-rounded-s-* / rounded-e-*     | rounded-l-* / rounded-r-*
-gap-* / justify-between       | absolute left/right icon placement
+| DO                        | DON'T                              |
+| ------------------------- | ---------------------------------- |
+| ps-_ / pe-_ (padding)     | pl-_ / pr-_                        |
+| ms-_ / me-_ (margin)      | ml-_ / mr-_                        |
+| start-_ / end-_ (inset)   | left-_ / right-_                   |
+| text-start / text-end     | text-left / text-right             |
+| border-s-_ / border-e-_   | border-l-_ / border-r-_            |
+| rounded-s-_ / rounded-e-_ | rounded-l-_ / rounded-r-_          |
+| gap-\* / justify-between  | absolute left/right icon placement |
 
-- Symmetric px-* / py-* are direction-neutral and fine to use.
+- Symmetric px-_ / py-_ are direction-neutral and fine to use.
 - Directional icons (ArrowRight, ChevronRight, ArrowLeft) do NOT
   auto-flip in RTL. Swap them from direction or lean on gap-based
   layouts instead of hard-coded placement.
 - Set direction once at the root: <DirectionProvider dir="rtl">.
 
-============================================================ 15. SHADCN COMPONENTS
-============================================================
+# ============================================================ 15. SHADCN COMPONENTS
+
 Primitives live in components/ui (style: radix-rhea, base: neutral) and
 are added with the shadcn CLI. They are building blocks, not the final
 look — always re-theme them to the zinc system above.
@@ -337,3 +346,62 @@ look — always re-theme them to the zinc system above.
   components/PasswordField.tsx (password + visibility toggle).
 - One reusable field wrapper per input shape beats repeating markup
   across forms; share the primary CTA via AuthSubmitButton.
+
+# ============================================================ 16. STATE, DATA & SESSION
+
+Two API layers, one per runtime:
+
+- lib/api-server.ts — used by Server Components and server actions.
+  Reads/writes cookies via next/headers, forwards auth Set-Cookie, and
+  on 401 refreshes through POST /auth/refresh-token (forwarding the new
+  cookie). Because it sets cookies it must run in a server action or
+  route handler, never during a plain Server Component render.
+- lib/api-client.ts — browser fetch helper (not yet imported anywhere;
+  the server layer above is what the app currently uses). Keeps the
+  access token in memory (setAccessToken / getAccessToken), sends
+  credentials, and on 401 refreshes through POST /api/auth/refresh,
+  queueing concurrent requests while the refresh is in flight.
+
+Ambient response/user types live in types/index.d.ts (SuccessResponse,
+User, AuthResponse).
+
+Client state uses zustand with the persist middleware
+(stores/user.store.ts, localStorage key "userStore"). Select the
+slices you need with useShallow to avoid re-render churn:
+
+const { setUser } = useUserStore(
+useShallow((state) => ({ setUser: state.setUser })),
+);
+
+Session flow:
+
+1. login / createAccount (lib/actions/auth-actions.ts) forward the
+   auth cookies and re-render.
+2. SiteHeader (Server Component) calls getCurrentUser()
+   (lib/actions/user.actions.ts) inside Suspense and hands the user to
+   the client SiteHeaderNav.
+3. SiteHeaderNav writes that user into the store in a useEffect;
+   components on that pass render from the prop, and any other client
+   component can read the store.
+4. logout() clears the auth cookies and redirects; the next render
+   resolves null and the effect writes null, clearing the persisted
+   store.
+   The server (the user resolved from /auth/me) is the source of truth;
+   the store is a client mirror for convenience, never an auth check.
+
+Google sign-in (OAuth): GOOGLE_REDIRECT_URI points at the client
+(app/auth/google/callback), so the client owns both halves of the
+handshake and the API origin is never a top-level navigation.
+
+- app/auth/google/route.ts starts it: a server-side GET to the backend
+  /auth/google, then forwards the backend's redirect (on to Google) and
+  the oauth_state cookie onto this origin.
+- app/auth/google/callback/route.ts receives Google's redirect, forwards
+  code + state + the browser's cookies to /auth/google/callback, then
+  mirrors the returned accessToken + refreshToken cookies onto this
+  origin and redirects to /. Failures land on /login?error=google, which
+  components/GoogleAuthButton.tsx surfaces as a toast.
+  Gotcha: call response.cookies.set(...) BEFORE response.headers.append(
+  "set-cookie", ...). Next re-serialises Set-Cookie when cookies.set runs
+  and drops any Set-Cookie headers appended before it — so the accessToken
+  must be set first, then the forwarded backend cookies appended.

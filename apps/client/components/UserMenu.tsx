@@ -3,7 +3,6 @@
 import { LogOut, User as UserIcon } from "lucide-react";
 
 import { logout } from "@/lib/actions/auth-actions";
-import type { SessionUser } from "@/lib/auth";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -13,7 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-export function UserMenu({ user }: { user: SessionUser }) {
+export function UserMenu({ user }: { user: User }) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
