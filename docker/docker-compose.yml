@@ -39,6 +39,7 @@ services:
       - app-network
   kafka:
     image: apache/kafka:4.3.1
+    restart: unless-stopped
     container_name: e-commerce-kafka
     ports:
       - "127.0.0.1:9092:9092"

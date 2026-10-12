@@ -145,3 +145,32 @@ export async function resetPassword(
         };
     }
 }
+
+export async function verifyEmail(
+    token: string,
+): Promise<
+    { ok: true; data: { message: string } } | { ok: false; message: string }
+> {
+    try {
+        const result = await api<
+            SuccessResponse<{
+                message: string;
+            }>
+        >(`/auth/verify-email/${encodeURIComponent(token)}`, {
+            skipAuth: true,
+            method: "GET",
+        });
+        return {
+            ok: true,
+            data: result.data,
+        };
+    } catch (error: any) {
+        return {
+            ok: false,
+            message:
+                typeof error?.message === "string"
+                    ? error.message
+                    : "Something went wrong verifying your email.",
+        };
+    }
+}

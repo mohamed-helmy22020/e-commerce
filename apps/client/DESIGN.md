@@ -253,7 +253,8 @@ components/ui/theme-provider.tsx
 Auth reference: app/(auth)/layout.tsx and its pages
 app/(auth)/login/page.tsx, app/(auth)/signup/page.tsx,
 app/(auth)/forgot-password/page.tsx,
-app/(auth)/reset-password/[code]/page.tsx plus:
+app/(auth)/reset-password/[code]/page.tsx,
+app/(auth)/verify-email/[token]/page.tsx plus:
 components/AuthShell.tsx
 components/AuthCard.tsx
 components/AuthField.tsx
@@ -269,6 +270,10 @@ lib/actions/auth-actions.ts
 Dynamic route params (e.g. reset-password/[code]) are runtime data
 under cacheComponents, so read them inside a Suspense boundary: keep
 the page shell sync and await params in a child component.
+
+A page that must run a backend call before it can render (e.g.
+verify-email/[token]) instead opts out with `export const instant =
+false` and calls the server action directly in the Server Component.
 
 When in doubt, match one of these exactly rather than inventing
 a new pattern.
