@@ -4,7 +4,6 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import z from "zod";
 import { api } from "../api-server";
-import { clearSessionUser, setSessionUser } from "../auth";
 import {
     forgotPasswordSchema,
     ForgotPasswordValues,
@@ -62,7 +61,6 @@ export async function login(values: LoginValues) {
         });
         const cookieStore = await cookies();
         cookieStore.set("accessToken", result.data.accessToken);
-        await setSessionUser(result.data.user);
         return {
             ok: true,
             data: result.data,
@@ -188,7 +186,6 @@ export async function logout() {
     const cookieStore = await cookies();
     cookieStore.delete("accessToken");
     cookieStore.delete("refreshToken");
-    await clearSessionUser();
 
     redirect("/");
 }

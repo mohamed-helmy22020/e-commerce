@@ -2,9 +2,11 @@
 
 import { LogOut, Menu, Search, ShoppingBag, User, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { logout } from "@/lib/actions/auth-actions";
+import { useUserStore } from "@/stores/user.store";
+import { useShallow } from "zustand/react/shallow";
 import { UserMenu } from "./UserMenu";
 import { ModeToggle } from "./ui/ModeToggle";
 import { Button } from "./ui/button";
@@ -29,6 +31,16 @@ type SiteHeaderNavProps = {
 export function SiteHeaderNav({ user }: SiteHeaderNavProps) {
     const [open, setOpen] = useState(false);
     const cartCount = 2;
+    const { setUser } = useUserStore(
+        useShallow((state) => ({
+            setUser: state.setUser,
+        })),
+    );
+
+    useEffect(() => {
+        if (user === undefined) return;
+        setUser(user);
+    }, [user]);
 
     return (
         <>

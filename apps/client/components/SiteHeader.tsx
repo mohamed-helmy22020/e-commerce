@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/actions/user.actions";
 import { SiteHeaderNav } from "./SiteHeaderNav";
 
 export function SiteHeader() {

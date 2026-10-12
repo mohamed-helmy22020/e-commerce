@@ -51,7 +51,7 @@ export function LoginForm() {
         }
         form.reset();
         toast.success(result.data?.message);
-        router.push("/login");
+        router.push("/");
     };
 
     return (
