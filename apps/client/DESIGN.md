@@ -243,7 +243,9 @@ Client components only when needed | "use client" on every file
 ============================================================ 13. REFERENCE IMPLEMENTATION
 ============================================================
 Canonical reference: app/page.tsx plus:
-components/SiteHeader.tsx
+components/SiteHeader.tsx (server, auth-aware)
+components/SiteHeaderNav.tsx (client header markup)
+components/UserMenu.tsx (signed-in account dropdown)
 components/ProductCard.tsx
 components/Newsletter.tsx
 components/SiteFooter.tsx
@@ -274,6 +276,16 @@ the page shell sync and await params in a child component.
 A page that must run a backend call before it can render (e.g.
 verify-email/[token]) instead opts out with `export const instant =
 false` and calls the server action directly in the Server Component.
+
+The site header is auth-aware without making the whole app dynamic:
+components/SiteHeader.tsx is a Server Component that resolves the
+signed-in user inside a Suspense boundary (fallback = the same header
+with no user, showing a skeleton). It does not call the backend on
+every render: lib/auth.ts keeps a small user snapshot cookie that the
+login/register actions write and logout clears, and passes it to the
+client SiteHeaderNav / UserMenu. Signed in shows an account dropdown
+(components/UserMenu.tsx) with a Sign out form action; signed out
+keeps the Sign in / Sign up links.
 
 When in doubt, match one of these exactly rather than inventing
 a new pattern.
