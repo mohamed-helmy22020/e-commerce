@@ -27,7 +27,6 @@ export function SignupForm() {
     }, []);
     const onSubmit = async (values: SignupValues) => {
         const result = await createAccount(values);
-        console.log({ result });
         if (!result.ok) {
             if (result.fieldErrors) {
                 if (result.fieldErrors.properties?.name?.errors) {

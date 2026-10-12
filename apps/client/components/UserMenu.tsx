@@ -1,6 +1,7 @@
 "use client";
 
-import { LogOut, User as UserIcon } from "lucide-react";
+import { LogOut, Settings, User as UserIcon } from "lucide-react";
+import Link from "next/link";
 
 import { logout } from "@/lib/actions/auth-actions";
 import {
@@ -34,6 +35,15 @@ export function UserMenu({ user }: { user: User }) {
                         {user.email}
                     </span>
                 </DropdownMenuLabel>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem asChild>
+                    <Link href="/settings" className="w-full cursor-pointer">
+                        <Settings />
+                        Settings
+                    </Link>
+                </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
 

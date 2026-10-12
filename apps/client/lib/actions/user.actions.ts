@@ -1,3 +1,4 @@
+"use server";
 import { api } from "../api-server";
 
 export async function getCurrentUser(): Promise<User | null> {

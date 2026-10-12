@@ -11,6 +11,9 @@ export async function comparePassword(password: string, hash: string) {
 }
 
 export function hashToken(rawToken: string) {
+    if (process.env.NODE_ENV !== "production") {
+        return rawToken;
+    }
     const REFRESH_PEPPER = process.env.REFRESH_PEPPER;
 
     if (!REFRESH_PEPPER) {

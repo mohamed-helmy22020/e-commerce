@@ -276,6 +276,20 @@ lib/authSchema.ts
 lib/actions/auth-actions.ts
 lib/actions/user.actions.ts
 stores/user.store.ts
+proxy.ts (optimistic route guarding — see section 17)
+
+Settings reference: app/settings/layout.tsx (shared shell + nav +
+footer) plus
+app/settings/page.tsx (Profile — read-only user data)
+app/settings/edit/page.tsx (Edit profile — UI-only form)
+components/SettingsNav.tsx
+components/ProfileView.tsx
+components/ProfileForm.tsx
+components/SettingsCardSkeleton.tsx
+Both settings pages resolve the signed-in user with getCurrentUser()
+inside a Suspense boundary (fallback = SettingsCardSkeleton) so the
+shell stays static; the edit form validates against profileSchema but
+does not persist yet.
 
 Dynamic route params (e.g. reset-password/[code]) are runtime data
 under cacheComponents, so read them inside a Suspense boundary: keep
@@ -363,7 +377,10 @@ Two API layers, one per runtime:
   queueing concurrent requests while the refresh is in flight.
 
 Ambient response/user types live in types/index.d.ts (SuccessResponse,
-User, AuthResponse).
+User, AuthResponse). User mirrors the backend convertToPublicUser
+payload: camelCase flags (isEmailVerified, twoFactorEnabled), an ISO
+string created_at, and role: UserRole ("USER" | "ADMIN"). Keep the
+field names in sync with that payload — not the old snake_case ones.
 
 Client state uses zustand with the persist middleware
 (stores/user.store.ts, localStorage key "userStore"). Select the
@@ -405,3 +422,43 @@ handshake and the API origin is never a top-level navigation.
   "set-cookie", ...). Next re-serialises Set-Cookie when cookies.set runs
   and drops any Set-Cookie headers appended before it — so the accessToken
   must be set first, then the forwarded backend cookies appended.
+
+# ============================================================ 17. ROUTING, PROXY & ACCOUNT AREA
+
+proxy.ts (project root) is Next 16's renamed middleware (middleware.ts
+is deprecated). It does OPTIMISTIC, cookie-only route guarding — never a
+DB or API call, since it also runs on prefetches:
+
+- authRoutes = ["/login", "/signup"] — signed-in visitors are redirected
+  home ("/"). Add any future logged-out-only page here.
+- protectedRoutes = ["/settings"] — signed-out visitors are redirected
+  to /login?next=<path>. Add every future URL that needs a session here.
+
+Both lists match by prefix, so a parent path also covers its children
+(/settings covers /settings/edit). The protected redirect carries a
+`next` param; LoginForm (components/LoginForm.tsx) reads it on success
+and returns the visitor to where they were headed (same-origin paths
+only). The server — getCurrentUser() over /auth/me — is still the real
+gate; the proxy only avoids rendering the wrong page and wasted prefetch
+churn.
+
+Account area (/settings) is UI-only for now:
+
+- app/settings/layout.tsx renders the shared shell: a "Settings" header,
+  a grid (SettingsNav in the start column at lg, content beside it), and
+  SiteFooter.
+- app/settings/page.tsx -> components/ProfileView.tsx: read-only user
+  data (avatar initials, name, email, role, member since) plus status
+  pills (email verified / two-factor). Emerald is used only for the
+  success dot.
+- app/settings/edit/page.tsx -> components/ProfileForm.tsx: a
+  react-hook-form + zod form (profileSchema in lib/authSchema.ts) built
+  from AuthField, sharing the AuthSubmitButton CTA. It validates and
+  toasts on submit but does NOT persist — wire a server action when the
+  backend supports it.
+- Reachable from components/UserMenu.tsx (Settings item) and the mobile
+  drawer user card in SiteHeaderNav, both client-side navigations.
+
+When adding a settings subpage, drop a link into components/SettingsNav.tsx
+(active route highlighted from usePathname) and, if it needs a session,
+add its parent path to protectedRoutes above.

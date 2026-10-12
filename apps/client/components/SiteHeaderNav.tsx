@@ -1,6 +1,14 @@
 "use client";
 
-import { LogOut, Menu, Search, ShoppingBag, User, X } from "lucide-react";
+import {
+    LogOut,
+    Menu,
+    Search,
+    Settings,
+    ShoppingBag,
+    User,
+    X,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -197,6 +205,14 @@ export function SiteHeaderNav({ user }: SiteHeaderNavProps) {
                                     <p className="truncate text-sm text-zinc-500 dark:text-zinc-400">
                                         {user.email}
                                     </p>
+                                    <Link
+                                        href="/settings"
+                                        onClick={() => setOpen(false)}
+                                        className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+                                    >
+                                        <Settings className="size-4" />
+                                        Account settings
+                                    </Link>
                                 </div>
                                 <form action={logout}>
                                     <button

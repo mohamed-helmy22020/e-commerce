@@ -2,14 +2,17 @@ type SuccessResponse<T = Record<string, unknown>> = {
     success: true;
     data: T;
 };
+
+type UserRole = "USER" | "ADMIN";
+
 type User = {
     id: string;
     name: string;
     email: string;
     role: UserRole;
-    is_email_verified: boolean;
-    two_factor_enabled: boolean;
-    created_at: Date;
+    isEmailVerified: boolean;
+    twoFactorEnabled: boolean;
+    created_at: string;
 };
 
 type AuthResponse = SuccessResponse<{

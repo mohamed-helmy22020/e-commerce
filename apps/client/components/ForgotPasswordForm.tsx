@@ -28,7 +28,6 @@ export function ForgotPasswordForm() {
     }, []);
     const onSubmit = async (values: ForgotPasswordValues) => {
         const result = await forgotPassword(values);
-        console.log({ result });
         if (!result.ok) {
             if (result.fieldErrors) {
                 if (result.fieldErrors.properties?.email?.errors) {

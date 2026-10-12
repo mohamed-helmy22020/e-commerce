@@ -15,6 +15,16 @@ import { useRouter } from "next/navigation";
 import { useLayoutEffect } from "react";
 import { toast } from "sonner";
 
+/**
+ * Where to land after signing in. The proxy sends guarded requests to
+ * /login?next=..., so honour that when it is a safe same-origin path.
+ */
+function nextPath() {
+    const next = new URLSearchParams(window.location.search).get("next");
+    if (next && next.startsWith("/") && !next.startsWith("//")) return next;
+    return "/";
+}
+
 export function LoginForm() {
     const router = useRouter();
     const form = useForm<LoginValues>({
@@ -27,7 +37,6 @@ export function LoginForm() {
     }, []);
     const onSubmit = async (values: LoginValues) => {
         const result = await login(values);
-        console.log({ result });
         if (!result.ok) {
             if (result.fieldErrors) {
                 if (result.fieldErrors.properties?.email?.errors) {
@@ -51,7 +60,7 @@ export function LoginForm() {
         }
         form.reset();
         toast.success(result.data?.message);
-        router.push("/");
+        router.push(nextPath());
     };
 
     return (
