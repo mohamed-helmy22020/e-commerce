@@ -3,6 +3,7 @@ import { requireGatewaySecret, validateBody } from "shared";
 import * as authController from "../controllers/auth.controller";
 import * as singleSignOnController from "../controllers/singleSignOn.controller";
 import {
+    delete2FASchema,
     forgotPasswordSchema,
     loginSchema,
     registerSchema,
@@ -39,5 +40,14 @@ router.post(
     validateBody(twoFAVerifySchema),
     authController.twoFAVerifyHandler,
 );
+router.post(
+    "/2fa-delete",
+    requireGatewaySecret,
+    validateBody(delete2FASchema),
+    authController.delete2FA,
+);
+
+//TODO: add passkey
+//TODO: add backup codes
 
 export default router;

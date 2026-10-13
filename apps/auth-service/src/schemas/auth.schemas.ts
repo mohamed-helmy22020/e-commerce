@@ -53,6 +53,13 @@ export const updateUserSchema = z.object({
         .optional(),
 });
 
+export const delete2FASchema = z.object({
+    password: z
+        .string({ message: "Password is required" })
+        .min(8, { message: "Password is too short" }),
+    code: z.string({ message: "Code is required" }).min(6),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
@@ -60,3 +67,4 @@ export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type TwoFAVerifyInput = z.infer<typeof twoFAVerifySchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type Delete2FAInput = z.infer<typeof delete2FASchema>;

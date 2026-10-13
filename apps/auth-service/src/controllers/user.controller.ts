@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { AppError, successResponse } from "shared";
+import { AppError, requireIdentity, successResponse } from "shared";
 import * as userService from "../services/user.service";
 
 export async function getMe(req: Request, res: Response) {
-    const userId = req.headers["x-user-id"] as string;
+    const { userId } = requireIdentity(req);
     if (!userId) {
         throw new AppError("Missing x-user-id header", 401);
     }
@@ -12,7 +12,7 @@ export async function getMe(req: Request, res: Response) {
 }
 
 export async function updateUser(req: Request, res: Response) {
-    const userId = req.headers["x-user-id"] as string;
+    const { userId } = requireIdentity(req);
     if (!userId) {
         throw new AppError("Missing x-user-id header", 401);
     }

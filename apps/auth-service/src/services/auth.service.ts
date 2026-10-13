@@ -305,3 +305,40 @@ export async function twoFAVerify(userId: string, code: string) {
         },
     });
 }
+
+export async function delete2FA(
+    userId: string,
+    password: string,
+    code: string,
+) {
+    const user = await userRepo.findById(userId);
+    if (!user) {
+        throw new AppError("User not found", 404);
+    }
+
+    if (!user.two_factor_secret || !user.two_factor_enabled) {
+        throw new AppError("Two factor is not enabled", 400);
+    }
+
+    const { valid: isValid } = await verify({
+        secret: user.two_factor_secret,
+        token: code,
+    });
+
+    if (!isValid) {
+        throw new AppError("Invalid two factor code", 400);
+    }
+
+    const isValidPassword = await comparePassword(password, user.password_hash);
+    if (!isValidPassword) {
+        throw new AppError("Invalid password", 400);
+    }
+
+    await userRepo.updateUserById({
+        id: user.id,
+        userData: {
+            two_factor_enabled: false,
+            two_factor_secret: "",
+        },
+    });
+}

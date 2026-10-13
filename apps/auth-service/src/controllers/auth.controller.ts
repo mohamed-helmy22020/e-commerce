@@ -8,6 +8,7 @@ import {
 import z from "zod";
 import * as refreshTokenRepo from "../repositories/refreshToken.repo";
 import {
+    Delete2FAInput,
     ForgotPasswordInput,
     LoginInput,
     RegisterInput,
@@ -157,6 +158,21 @@ export async function twoFAVerifyHandler(
     return successResponse(
         res,
         { message: "Two factor enabled successfully" },
+        200,
+    );
+}
+
+export async function delete2FA(
+    req: Request<{}, {}, Delete2FAInput>,
+    res: Response,
+) {
+    const { userId } = requireIdentity(req);
+    const { password, code } = req.body;
+
+    await authService.delete2FA(userId, password, code);
+    return successResponse(
+        res,
+        { message: "Two factor disabled successfully" },
         200,
     );
 }

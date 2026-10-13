@@ -64,6 +64,11 @@ const rbacRules: RbacRule[] = [
     },
     {
         method: "POST",
+        path: "/auth/2fa-delete",
+        roles: ["USER", "ADMIN"],
+    },
+    {
+        method: "POST",
         path: "/user/me",
         roles: ["USER", "ADMIN"],
     },
