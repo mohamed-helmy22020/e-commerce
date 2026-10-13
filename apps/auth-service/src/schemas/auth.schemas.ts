@@ -36,9 +36,27 @@ export const resetPasswordSchema = z.object({
 export const twoFAVerifySchema = z.object({
     code: z.string().min(6),
 });
+
+export const updateUserSchema = z.object({
+    name: z
+        .string({ message: "Name should be a string" })
+        .min(2, { message: "Name is too short" })
+        .optional(),
+    email: z.email({ message: "Email is invalid" }).optional(),
+    password: z
+        .string({ message: "Password is required" })
+        .min(8, { message: "Password is too short" })
+        .optional(),
+    newPassword: z
+        .string({ message: "New password is required" })
+        .min(8, { message: "New password is too short" })
+        .optional(),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type TwoFAVerifyInput = z.infer<typeof twoFAVerifySchema>;
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;

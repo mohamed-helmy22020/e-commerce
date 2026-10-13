@@ -125,7 +125,7 @@ export async function updateUserById(input: {
         paramIndex++;
     }
     if (setClauses.length === 0) {
-        throw new Error("No fields provided for update");
+        throw new AppError("No fields provided for update", 400);
     }
     values.push(input.id);
     const whereParamIndex = paramIndex;
