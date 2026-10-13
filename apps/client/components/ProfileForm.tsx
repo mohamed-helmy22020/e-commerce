@@ -10,7 +10,7 @@ import { useShallow } from "zustand/react/shallow";
 import { AuthField } from "@/components/AuthField";
 import { AuthSubmitButton } from "@/components/AuthSubmitButton";
 import { PasswordField } from "@/components/PasswordField";
-import { Button } from "@/components/ui/button";
+import { SecondaryButton } from "@/components/SecondaryButton";
 import { FieldGroup } from "@/components/ui/field";
 import { updateUser } from "@/lib/actions/user.actions";
 import { profileSchema, type ProfileValues } from "@/lib/authSchema";
@@ -197,13 +197,9 @@ export function ProfileForm({ user }: { user: User }) {
             ) : null}
 
             <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <Button
-                    asChild
-                    variant="outline"
-                    className="h-12 rounded-full border-zinc-300 bg-white px-7 text-sm font-medium text-zinc-900 transition hover:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-100"
-                >
+                <SecondaryButton asChild>
                     <Link href="/settings">Cancel</Link>
-                </Button>
+                </SecondaryButton>
                 <AuthSubmitButton
                     className="w-full sm:w-auto"
                     disabled={form.formState.isSubmitting}

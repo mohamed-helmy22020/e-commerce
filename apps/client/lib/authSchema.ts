@@ -16,6 +16,13 @@ export const twoFactorCodeSchema = z.object({
         .regex(/^\d{6}$/, "Enter the 6-digit code from your authenticator app."),
 });
 
+export const deleteTwoFactorSchema = z.object({
+    password: z.string().min(8, "Password must be at least 8 characters."),
+    code: z
+        .string()
+        .regex(/^\d{6}$/, "Enter the 6-digit code from your authenticator app."),
+});
+
 export const signupSchema = z.object({
     name: z
         .string()
@@ -80,3 +87,4 @@ export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 export type ProfileValues = z.infer<typeof profileSchema>;
 export type TwoFactorCodeValues = z.infer<typeof twoFactorCodeSchema>;
+export type DeleteTwoFactorValues = z.infer<typeof deleteTwoFactorSchema>;

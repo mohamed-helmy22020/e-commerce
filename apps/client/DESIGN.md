@@ -287,14 +287,19 @@ app/settings/security/page.tsx (Security — two-factor authentication)
 components/SettingsNav.tsx
 components/ProfileView.tsx
 components/ProfileForm.tsx
-components/TwoFactorSettings.tsx
+components/TwoFactorSettings.tsx (owns on/off state + store mirror)
+components/TwoFactorSetupCard.tsx (off -> start, scan, verify)
+components/TwoFactorStatusCard.tsx (on -> status + confirm-to-disable)
+components/TwoFactorSetupKey.tsx (QR + manual setup key)
+components/SettingsCard.tsx (shared card shell)
+components/SecondaryButton.tsx (outline CTA)
 components/SettingsCardSkeleton.tsx
 The settings pages resolve the signed-in user with getCurrentUser()
 inside a Suspense boundary (fallback = SettingsCardSkeleton) so the
 shell stays static; the edit form validates against profileSchema and
 persists through the updateUser server action (POST /user/me), and the
-security page drives startTwoFactorSetup / verifyTwoFactor
-(/auth/2fa-setup, /auth/2fa-verify).
+security page drives startTwoFactorSetup / verifyTwoFactor /
+deleteTwoFactor (/auth/2fa-setup, /auth/2fa-verify, /auth/2fa-delete).
 
 Dynamic route params (e.g. reset-password/[code]) are runtime data
 under cacheComponents, so read them inside a Suspense boundary: keep
@@ -364,7 +369,8 @@ look — always re-theme them to the zinc system above.
   wired with Controller. See components/AuthField.tsx (text input) and
   components/PasswordField.tsx (password + visibility toggle).
 - One reusable field wrapper per input shape beats repeating markup
-  across forms; share the primary CTA via AuthSubmitButton.
+  across forms; share the primary CTA via AuthSubmitButton and the
+  outline CTA via SecondaryButton.
 
 # ============================================================ 16. STATE, DATA & SESSION
 
@@ -471,11 +477,17 @@ Account area (/settings):
   success it mirrors the returned user into the store, revalidates
   /settings, and toasts.
 - app/settings/security/page.tsx -> components/TwoFactorSettings.tsx:
-  two-factor authentication. When off it calls startTwoFactorSetup
-  (POST /auth/2fa-setup), renders the returned otpauthURI as a QR
-  (qrcode.react) with the base32 secret for manual entry, then verifies
-  the 6-digit code through verifyTwoFactor (POST /auth/2fa-verify). Once
-  on it shows a status pill. The backend has no disable endpoint yet.
+  two-factor authentication, owned by the thin TwoFactorSettings
+  orchestrator (on/off state + user-store mirror). When off,
+  TwoFactorSetupCard calls startTwoFactorSetup (POST /auth/2fa-setup),
+  shows the returned otpauthURI as a QR with the base32 secret for manual
+  entry (TwoFactorSetupKey, qrcode.react), then verifies the 6-digit code
+  through verifyTwoFactor (POST /auth/2fa-verify). When on,
+  TwoFactorStatusCard shows a status pill plus a confirm-to-disable form
+  that collects the account password and a current code, then calls
+  deleteTwoFactor (POST /auth/2fa-delete), which verifies both and clears
+  the secret. All cards share SettingsCard / SecondaryButton, and action
+  errors render through FieldError.
 - Reachable from components/UserMenu.tsx (Settings item) and the mobile
   drawer user card in SiteHeaderNav, both client-side navigations.
 

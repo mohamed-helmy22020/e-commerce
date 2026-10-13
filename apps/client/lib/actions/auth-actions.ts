@@ -131,6 +131,32 @@ export async function verifyTwoFactor(code: string) {
     }
 }
 
+export async function deleteTwoFactor(password: string, code: string) {
+    try {
+        const result = await api<SuccessResponse<{ message: string }>>(
+            "/auth/2fa-delete",
+            {
+                method: "POST",
+                body: JSON.stringify({ password, code }),
+            },
+        );
+        revalidatePath("/settings/security");
+        revalidatePath("/settings");
+        return {
+            ok: true as const,
+            data: result.data,
+        };
+    } catch (error: any) {
+        return {
+            ok: false as const,
+            message:
+                typeof error?.message === "string"
+                    ? error.message
+                    : "Something went wrong disabling two-factor authentication.",
+        };
+    }
+}
+
 export async function forgotPassword(values: ForgotPasswordValues) {
     const parsedValues = forgotPasswordSchema.safeParse(values);
     if (!parsedValues.success) {
