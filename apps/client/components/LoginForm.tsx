@@ -12,7 +12,7 @@ import { login } from "@/lib/actions/auth-actions";
 import { loginSchema, type LoginValues } from "@/lib/authSchema";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import { toast } from "sonner";
 
 /**
@@ -27,15 +27,27 @@ function nextPath() {
 
 export function LoginForm() {
     const router = useRouter();
+    const [twoFactorRequired, setTwoFactorRequired] = useState(false);
     const form = useForm<LoginValues>({
         resolver: zodResolver(loginSchema),
-        defaultValues: { email: "", password: "" },
+        defaultValues: { email: "", password: "", twoFactorCode: "" },
         mode: "onTouched",
     });
     useLayoutEffect(() => {
         form.reset();
     }, []);
     const onSubmit = async (values: LoginValues) => {
+        if (twoFactorRequired) {
+            const code = values.twoFactorCode?.trim() ?? "";
+            if (!/^\d{6}$/.test(code)) {
+                form.setError("twoFactorCode", {
+                    message:
+                        "Enter the 6-digit code from your authenticator app.",
+                });
+                return;
+            }
+        }
+
         const result = await login(values);
         if (!result.ok) {
             if (result.fieldErrors) {
@@ -51,6 +63,19 @@ export function LoginForm() {
                             result.fieldErrors.properties?.password?.errors[0],
                     });
                 }
+            } else if (
+                typeof result.message === "string" &&
+                result.message.includes("Missing two factor code")
+            ) {
+                // The account has 2FA on: reveal the code field and try again.
+                setTwoFactorRequired(true);
+            } else if (
+                typeof result.message === "string" &&
+                result.message.includes("Invalid two factor code")
+            ) {
+                form.setError("twoFactorCode", {
+                    message: "That code is invalid or has expired. Try again.",
+                });
             } else {
                 form.setError("root", {
                     message: result.message,
@@ -92,6 +117,24 @@ export function LoginForm() {
                         </Link>
                     }
                 />
+                {twoFactorRequired ? (
+                    <>
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                            Two-factor authentication is on. Enter the 6-digit
+                            code from your authenticator app to continue.
+                        </p>
+                        <AuthField
+                            control={form.control}
+                            name="twoFactorCode"
+                            label="Authentication code"
+                            inputMode="numeric"
+                            maxLength={6}
+                            autoFocus
+                            autoComplete="one-time-code"
+                            placeholder="123456"
+                        />
+                    </>
+                ) : null}
             </FieldGroup>
 
             {form.formState.errors.root && (
@@ -104,8 +147,10 @@ export function LoginForm() {
                 {form.formState.isSubmitting ? (
                     <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Logging in
+                        {twoFactorRequired ? "Verifying" : "Logging in"}
                     </>
+                ) : twoFactorRequired ? (
+                    "Verify and sign in"
                 ) : (
                     "Sign in"
                 )}

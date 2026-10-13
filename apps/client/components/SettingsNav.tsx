@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, UserRound } from "lucide-react";
+import { Pencil, ShieldCheck, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 const links = [
     { label: "Profile", href: "/settings", icon: UserRound },
     { label: "Edit profile", href: "/settings/edit", icon: Pencil },
+    { label: "Security", href: "/settings/security", icon: ShieldCheck },
 ];
 
 export function SettingsNav() {

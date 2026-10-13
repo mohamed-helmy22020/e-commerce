@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import z from "zod";
@@ -54,10 +55,17 @@ export async function login(values: LoginValues) {
         };
     }
     try {
+        const { email, password, twoFactorCode } = parsedValues.data;
         const result = await api<AuthResponse>("/auth/login", {
             skipAuth: true,
             method: "POST",
-            body: JSON.stringify(values),
+            body: JSON.stringify({
+                email,
+                password,
+                // Only send the code when the account has 2FA enabled; the
+                // backend rejects an empty string.
+                ...(twoFactorCode ? { twoFactorCode } : {}),
+            }),
         });
         const cookieStore = await cookies();
         cookieStore.set("accessToken", result.data.accessToken);
@@ -69,6 +77,56 @@ export async function login(values: LoginValues) {
         return {
             ok: false,
             message: error.message,
+        };
+    }
+}
+
+export async function startTwoFactorSetup() {
+    try {
+        const result = await api<
+            SuccessResponse<{
+                message: string;
+                otpauthURI: string;
+                secret: string;
+            }>
+        >("/auth/2fa-setup", { method: "POST" });
+        return {
+            ok: true as const,
+            data: result.data,
+        };
+    } catch (error: any) {
+        return {
+            ok: false as const,
+            message:
+                typeof error?.message === "string"
+                    ? error.message
+                    : "Something went wrong starting two-factor setup.",
+        };
+    }
+}
+
+export async function verifyTwoFactor(code: string) {
+    try {
+        const result = await api<SuccessResponse<{ message: string }>>(
+            "/auth/2fa-verify",
+            {
+                method: "POST",
+                body: JSON.stringify({ code }),
+            },
+        );
+        revalidatePath("/settings/security");
+        revalidatePath("/settings");
+        return {
+            ok: true as const,
+            data: result.data,
+        };
+    } catch (error: any) {
+        return {
+            ok: false as const,
+            message:
+                typeof error?.message === "string"
+                    ? error.message
+                    : "Something went wrong verifying the code.",
         };
     }
 }

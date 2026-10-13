@@ -3,6 +3,17 @@ import { z } from "zod";
 export const loginSchema = z.object({
     email: z.email("Enter a valid email address."),
     password: z.string().min(8, "Password must be at least 8 characters."),
+    /**
+     * 6-digit TOTP code. Only collected once the backend reports that the
+     * account has two-factor authentication enabled.
+     */
+    twoFactorCode: z.string().optional(),
+});
+
+export const twoFactorCodeSchema = z.object({
+    code: z
+        .string()
+        .regex(/^\d{6}$/, "Enter the 6-digit code from your authenticator app."),
 });
 
 export const signupSchema = z.object({
@@ -68,3 +79,4 @@ export type SignupValues = z.infer<typeof signupSchema>;
 export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 export type ProfileValues = z.infer<typeof profileSchema>;
+export type TwoFactorCodeValues = z.infer<typeof twoFactorCodeSchema>;

@@ -32,6 +32,9 @@ type AuthFieldProps<T extends FieldValues> = {
     type?: React.HTMLInputTypeAttribute;
     placeholder?: string;
     autoComplete?: string;
+    inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+    maxLength?: number;
+    autoFocus?: boolean;
     /** Optional content rendered at the end of the label row (e.g. a link). */
     action?: ReactNode;
     /** Optional content rendered at the end of the input (e.g. a button). */
@@ -45,6 +48,9 @@ export function AuthField<T extends FieldValues>({
     type = "text",
     placeholder,
     autoComplete,
+    inputMode,
+    maxLength,
+    autoFocus,
     action,
     endAddon,
 }: AuthFieldProps<T>) {
@@ -67,6 +73,9 @@ export function AuthField<T extends FieldValues>({
                                 type={type}
                                 placeholder={placeholder}
                                 autoComplete={autoComplete}
+                                inputMode={inputMode}
+                                maxLength={maxLength}
+                                autoFocus={autoFocus}
                                 aria-invalid={fieldState.invalid}
                                 className={inputGroupInputClassName}
                             />
@@ -81,6 +90,9 @@ export function AuthField<T extends FieldValues>({
                             type={type}
                             placeholder={placeholder}
                             autoComplete={autoComplete}
+                            inputMode={inputMode}
+                            maxLength={maxLength}
+                            autoFocus={autoFocus}
                             aria-invalid={fieldState.invalid}
                             className={inputClassName}
                         />

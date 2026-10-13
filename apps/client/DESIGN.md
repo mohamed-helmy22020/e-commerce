@@ -12,6 +12,7 @@ Save as DESIGN.md in the repo root and reference it in every prompt.
 - react-hook-form + zod for every form (zodResolver from @hookform/resolvers)
 - lucide-react for UI icons; @hugeicons/core-free-icons for brand
   marks (e.g. the Google sign-in button)
+- qrcode.react for the two-factor setup QR code (client component)
 - next-themes for dark mode
 - sonner for toasts
 - zustand for client state; stores live in stores/ — see section 16
@@ -281,15 +282,19 @@ proxy.ts (optimistic route guarding — see section 17)
 Settings reference: app/settings/layout.tsx (shared shell + nav +
 footer) plus
 app/settings/page.tsx (Profile — read-only user data)
-app/settings/edit/page.tsx (Edit profile — UI-only form)
+app/settings/edit/page.tsx (Edit profile — name / email / password)
+app/settings/security/page.tsx (Security — two-factor authentication)
 components/SettingsNav.tsx
 components/ProfileView.tsx
 components/ProfileForm.tsx
+components/TwoFactorSettings.tsx
 components/SettingsCardSkeleton.tsx
-Both settings pages resolve the signed-in user with getCurrentUser()
+The settings pages resolve the signed-in user with getCurrentUser()
 inside a Suspense boundary (fallback = SettingsCardSkeleton) so the
 shell stays static; the edit form validates against profileSchema and
-persists through the updateUser server action (POST /user/me).
+persists through the updateUser server action (POST /user/me), and the
+security page drives startTwoFactorSetup / verifyTwoFactor
+(/auth/2fa-setup, /auth/2fa-verify).
 
 Dynamic route params (e.g. reset-password/[code]) are runtime data
 under cacheComponents, so read them inside a Suspense boundary: keep
@@ -393,7 +398,11 @@ useShallow((state) => ({ setUser: state.setUser })),
 Session flow:
 
 1. login / createAccount (lib/actions/auth-actions.ts) forward the
-   auth cookies and re-render.
+   auth cookies and re-render. When the account has 2FA on, login()
+   first fails with "Missing two factor code"; LoginForm reveals a
+   6-digit field and resubmits with twoFactorCode (credentials are
+   re-sent and re-validated alongside the code). Google sign-in is not
+   challenged for 2FA.
 2. SiteHeader (Server Component) calls getCurrentUser()
    (lib/actions/user.actions.ts) inside Suspense and hands the user to
    the client SiteHeaderNav.
@@ -442,7 +451,7 @@ only). The server — getCurrentUser() over /auth/me — is still the real
 gate; the proxy only avoids rendering the wrong page and wasted prefetch
 churn.
 
-Account area (/settings) is UI-only for now:
+Account area (/settings):
 
 - app/settings/layout.tsx renders the shared shell: a "Settings" header,
   a grid (SettingsNav in the start column at lg, content beside it), and
@@ -461,6 +470,12 @@ Account area (/settings) is UI-only for now:
   set, while the backend also rejects an email sent without one. On
   success it mirrors the returned user into the store, revalidates
   /settings, and toasts.
+- app/settings/security/page.tsx -> components/TwoFactorSettings.tsx:
+  two-factor authentication. When off it calls startTwoFactorSetup
+  (POST /auth/2fa-setup), renders the returned otpauthURI as a QR
+  (qrcode.react) with the base32 secret for manual entry, then verifies
+  the 6-digit code through verifyTwoFactor (POST /auth/2fa-verify). Once
+  on it shows a status pill. The backend has no disable endpoint yet.
 - Reachable from components/UserMenu.tsx (Settings item) and the mobile
   drawer user card in SiteHeaderNav, both client-side navigations.
 
