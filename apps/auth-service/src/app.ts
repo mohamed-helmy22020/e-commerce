@@ -7,7 +7,8 @@ import {
     requireGatewaySecret,
     successResponse,
 } from "shared";
-import authRoutes from "./routes/auth.routes";
+import authRoutes from "./routes/auth.route";
+import userRoutes from "./routes/user.route";
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/auth", requireGatewaySecret, authRoutes);
+app.use("/user", requireGatewaySecret, userRoutes);
 
 app.use((_req, res, next) => {
     next(new AppError("[AUTH SERVICE] Route not found", 404));

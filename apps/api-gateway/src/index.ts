@@ -50,6 +50,16 @@ app.use(
     }),
 );
 
+app.use(
+    "/user",
+    gatewayAuth,
+    createProxyMiddleware({
+        target: AUTH_SERVICE_URL,
+        changeOrigin: true,
+        pathRewrite: (path) => `/user${path}`,
+    }),
+);
+
 app.get("/", (_req, res) => {
     res.send("E-commerce API");
 });

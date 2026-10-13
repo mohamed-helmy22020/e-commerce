@@ -98,15 +98,6 @@ export async function logoutHandler(req: Request, res: Response) {
     return successResponse(res, { message: "Logged out successfully" }, 200);
 }
 
-export async function getMe(req: Request, res: Response) {
-    const userId = req.headers["x-user-id"] as string;
-    if (!userId) {
-        return res.status(401).json({ message: "Missing x-user-id header" });
-    }
-    const user = await authService.getMe(userId);
-    return successResponse(res, { user }, 200);
-}
-
 export async function forgotPasswordHandler(
     req: Request<{}, {}, ForgotPasswordInput>,
     res: Response,

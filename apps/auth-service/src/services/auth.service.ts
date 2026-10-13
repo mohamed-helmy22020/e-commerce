@@ -133,14 +133,6 @@ export async function login(input: LoginInput) {
     };
 }
 
-export async function getMe(userId: string) {
-    const user = await userRepo.findById(userId);
-    if (!user) {
-        throw new AppError("User not found", 404);
-    }
-    return convertToPublicUser(user);
-}
-
 export async function refreshToken(refreshToken: string) {
     const tokenHash = hashToken(refreshToken);
 

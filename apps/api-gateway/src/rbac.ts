@@ -44,7 +44,7 @@ export const publicRoutes = [
 const rbacRules: RbacRule[] = [
     {
         method: "GET",
-        path: "/auth/me",
+        path: "/user/me",
         roles: ["USER", "ADMIN"],
     },
     {
