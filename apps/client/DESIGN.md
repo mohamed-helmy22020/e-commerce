@@ -288,8 +288,8 @@ components/ProfileForm.tsx
 components/SettingsCardSkeleton.tsx
 Both settings pages resolve the signed-in user with getCurrentUser()
 inside a Suspense boundary (fallback = SettingsCardSkeleton) so the
-shell stays static; the edit form validates against profileSchema but
-does not persist yet.
+shell stays static; the edit form validates against profileSchema and
+persists through the updateUser server action (POST /user/me).
 
 Dynamic route params (e.g. reset-password/[code]) are runtime data
 under cacheComponents, so read them inside a Suspense boundary: keep
@@ -453,9 +453,14 @@ Account area (/settings) is UI-only for now:
   success dot.
 - app/settings/edit/page.tsx -> components/ProfileForm.tsx: a
   react-hook-form + zod form (profileSchema in lib/authSchema.ts) built
-  from AuthField, sharing the AuthSubmitButton CTA. It validates and
-  toasts on submit but does NOT persist — wire a server action when the
-  backend supports it.
+  from AuthField / PasswordField, sharing the AuthSubmitButton CTA. It
+  persists through updateUser (lib/actions/user.actions.ts), which POSTs
+  to the backend user route (/user/me). It updates name, email and
+  password: the current password is required (revealed in its own
+  identity-confirmation box) only when the email or a new password is
+  set, while the backend also rejects an email sent without one. On
+  success it mirrors the returned user into the store, revalidates
+  /settings, and toasts.
 - Reachable from components/UserMenu.tsx (Settings item) and the mobile
   drawer user card in SiteHeaderNav, both client-side navigations.
 
