@@ -3,6 +3,7 @@ import http from "http";
 import { resolve } from "node:path";
 import { logger } from "shared";
 import app from "./app";
+import { initKafka } from "./kafka";
 
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), "../../.env") });
@@ -11,6 +12,7 @@ const PORT = process.env.AUTH_PORT || 5001;
 
 async function startServer() {
     const server = http.createServer(app);
+    await initKafka();
     server.listen(PORT, () => {
         logger.info(`Auth service listening on port ${PORT}`);
     });

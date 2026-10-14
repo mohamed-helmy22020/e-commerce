@@ -7,9 +7,9 @@ import {
     createRefreshToken,
     getPool,
     getSecret,
-    sendEmail,
     verifyRefreshToken,
 } from "shared";
+import { publishEmailEvent } from "../kafka";
 import * as refreshTokenRepo from "../repositories/refreshToken.repo";
 import * as userRepo from "../repositories/user.repo";
 import { LoginInput, RegisterInput } from "../schemas/auth.schemas";
@@ -50,7 +50,8 @@ export async function register(input: RegisterInput) {
     );
     const emailVerificationUrl = `${getAppUrl()}/verify-email/${emailVerificationToken}`;
 
-    await sendEmail(
+    await publishEmailEvent(
+        "email.confirm",
         user.email,
         "Verify your email",
         `
@@ -217,7 +218,8 @@ export async function forgotPassword(email: string) {
 
     const resetPasswordUrl = `${getAppUrl()}/reset-password/${rawToken}`;
 
-    await sendEmail(
+    await publishEmailEvent(
+        "email.reset",
         user.email,
         "Reset your password",
         `

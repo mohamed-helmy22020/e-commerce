@@ -35,15 +35,17 @@ export async function publishJSONSafe(
     topic: string,
     payload: Record<string, unknown>,
     key?: string,
-): Promise<void> {
+): Promise<Boolean> {
     if (!producer) {
         logger.warn("Kafka producer is not initialized");
-        return;
+        return false;
     }
 
     try {
         await publishJSON(producer, topic, payload, key);
+        return true;
     } catch (e) {
         logger.error({ e, topic }, "Error publishing to Kafka");
+        return false;
     }
 }

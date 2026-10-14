@@ -4,7 +4,7 @@ import { ChildProcess, spawn } from "child_process";
 const ROOT = __dirname;
 
 // List your workspace names (must match the "name" field in each service's package.json)
-const services = ["api-gateway", "auth-service"];
+const services = ["api-gateway", "auth-service", "email-service"];
 
 // ---- colors + separator ----
 const colors = [
