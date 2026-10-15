@@ -7,6 +7,7 @@ export function errorHandler(
     _next: NextFunction,
 ) {
     console.log("###########");
+    console.log(err);
     console.log({ ...err, message: err?.message });
     console.log("###########");
     if (err instanceof AppError) {

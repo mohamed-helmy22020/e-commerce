@@ -1,1 +1,3 @@
-export const TOPICS = {} as const;
+export const TOPICS = {
+    EMAIL_EVENTS: "email-events",
+} as const;

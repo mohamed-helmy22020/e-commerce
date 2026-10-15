@@ -7,9 +7,10 @@ import {
     createRefreshToken,
     getPool,
     getSecret,
-    sendEmail,
+    logger,
     verifyRefreshToken,
 } from "shared";
+import { publishEmailEvent } from "../kafka";
 import * as refreshTokenRepo from "../repositories/refreshToken.repo";
 import * as userRepo from "../repositories/user.repo";
 import { LoginInput, RegisterInput } from "../schemas/auth.schemas";
@@ -50,7 +51,8 @@ export async function register(input: RegisterInput) {
     );
     const emailVerificationUrl = `${getAppUrl()}/verify-email/${emailVerificationToken}`;
 
-    await sendEmail(
+    await publishEmailEvent(
+        "email.confirm",
         user.email,
         "Verify your email",
         `
@@ -217,10 +219,12 @@ export async function forgotPassword(email: string) {
 
     const resetPasswordUrl = `${getAppUrl()}/reset-password/${rawToken}`;
 
-    await sendEmail(
-        user.email,
-        "Reset your password",
-        `
+    try {
+        await publishEmailEvent(
+            "email.reset",
+            user.email,
+            "Reset your password",
+            `
             <p>Click the link below to reset your password:</p>
             <p><a href="${resetPasswordUrl}">${resetPasswordUrl}</a></p>
             <p>or use this token: <br /><strong style="font-size: 20px; font-family: monospace;">${rawToken}</strong></p>
@@ -229,7 +233,11 @@ export async function forgotPassword(email: string) {
             <p><small>Note: replies to this email address are not monitored.</small></p>
 
         `,
-    );
+        );
+    } catch (error) {
+        logger.error(error);
+        throw new AppError("Failed to send email", 500);
+    }
     return true;
 }
 
