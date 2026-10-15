@@ -3,7 +3,12 @@ import { createProducer, logger, publishJSONSafe, TOPICS } from "shared";
 let producerPromise: ReturnType<typeof createProducer> | null = null;
 
 export function initKafka() {
-    producerPromise ??= createProducer("auth-service");
+    if (producerPromise === null) {
+        producerPromise = createProducer("auth-service").catch((error) => {
+            producerPromise = null;
+            throw error;
+        });
+    }
     return producerPromise;
 }
 
