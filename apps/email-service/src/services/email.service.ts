@@ -29,7 +29,9 @@ export async function startKafka() {
                 await sendEmail(event.to, event.subject, event.html);
             } catch (e) {
                 logger.error({ e }, "email consumer failed");
+                throw e;
             }
         },
+        { fromBeginning: true },
     );
 }

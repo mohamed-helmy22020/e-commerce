@@ -10,15 +10,19 @@ config({ path: resolve(process.cwd(), "../../.env") });
 
 const PORT = process.env.AUTH_PORT || 5001;
 
+initKafka().catch((err) => {
+    logger.error(err);
+});
+
 async function startServer() {
     const server = http.createServer(app);
-    await initKafka();
+
     server.listen(PORT, () => {
         logger.info(`Auth service listening on port ${PORT}`);
     });
 }
 
 startServer().catch((err) => {
-    console.error(err);
+    logger.error(err);
     process.exit(1);
 });

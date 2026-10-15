@@ -1,4 +1,4 @@
-import { createProducer, publishJSONSafe, TOPICS } from "shared";
+import { createProducer, logger, publishJSONSafe, TOPICS } from "shared";
 
 let producerPromise: ReturnType<typeof createProducer> | null = null;
 
@@ -13,16 +13,21 @@ export async function publishEmailEvent(
     subject: string,
     html: string,
 ) {
-    const producer = await initKafka();
-    return await publishJSONSafe(
-        producer,
-        TOPICS.EMAIL_EVENTS,
-        {
-            eventType,
+    try {
+        const producer = await initKafka();
+        return await publishJSONSafe(
+            producer,
+            TOPICS.EMAIL_EVENTS,
+            {
+                eventType,
+                to,
+                subject,
+                html,
+            },
             to,
-            subject,
-            html,
-        },
-        to,
-    );
+        );
+    } catch (error) {
+        logger.error(error);
+        return false;
+    }
 }
